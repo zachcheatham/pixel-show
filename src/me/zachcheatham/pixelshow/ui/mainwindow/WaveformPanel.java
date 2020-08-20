@@ -15,7 +15,7 @@ import java.util.Vector;
 public class WaveformPanel extends JPanel implements MouseListener
 {
     private final SamplingRenderer renderer = new SamplingRenderer();
-    private final Vector<int[]> cachedLines = new Vector<>();
+    private final Vector<int[]> lines = new Vector<>();
     private final WaveformEventListener eventListener;
 
     private AudioInputStream audioStream;
@@ -61,17 +61,29 @@ public class WaveformPanel extends JPanel implements MouseListener
             }
 
             Graphics2D g2 = (Graphics2D) g;
-            g2.setColor(Color.BLUE);
-            int totalLines = cachedLines.size();
+
+            int totalLines = lines.size();
             int linesStart = (int) Math.floor(frameStart / framesPerPixel);
             int linesEnds = linesStart + getWidth();
-            if (linesEnds > totalLines) linesEnds = cachedLines.size();
+            if (linesEnds > totalLines) linesEnds = lines.size();
+
+            final Color rmsColor = new Color(100, 100, 220);
+            final Color peakColor = new Color(50, 50, 200);
 
             int x = 0;
             for (int i = linesStart; i < linesEnds; i++)
             {
-                int[] y = cachedLines.get(i);
-                g2.drawLine(x, y[0], x, y[1]);
+                int[] lineValues = lines.get(i);
+
+                g2.setColor(peakColor);
+                g2.drawLine(x, lineValues[2], x, lineValues[3]);
+
+                if (lineValues[0] != lineValues[2] && lineValues[1] != lineValues[3])
+                {
+                    g2.setColor(rmsColor);
+                    g2.drawLine(x, lineValues[0], x, lineValues[1]);
+                }
+
                 x++;
             }
 
@@ -94,7 +106,7 @@ public class WaveformPanel extends JPanel implements MouseListener
     private void generateLines()
     {
         long start = System.currentTimeMillis();
-        cachedLines.removeAllElements();
+        lines.removeAllElements();
 
         int halfY = Math.round(getHeight() / 2.0f);
 
@@ -102,26 +114,35 @@ public class WaveformPanel extends JPanel implements MouseListener
 
         int pixel = 0;
         int framesPerPixelFloor = (int) Math.floor(framesPerPixel);
-        float[] upperAverages = new float[formWidth];
-        float[] lowerAverages = new float[formWidth];
-        float maxAverage = 0;
+        float[] upperRMS = new float[formWidth];
+        float[] lowerRMS = new float[formWidth];
+        int[] upperPeaks = new int[formWidth];
+        int[] lowerPeaks = new int[formWidth];
+        int maxValue = 0;
         for (int startPos = 0; startPos < values.length && pixel < formWidth; startPos += framesPerPixelFloor)
         {
             int foundUpper = 0;
             int foundLower = 0;
             int totalUpper = 0;
             int totalLower = 0;
+            int upperPeak = 0;
+            int lowerPeak = 0;
             for (int i = 0; (i < framesPerPixelFloor) && (i+startPos < values.length); i++)
             {
-                if (values[startPos + i] > 0)
+                int value = values[startPos + i];
+                if (value > 0)
                 {
-                    totalUpper += values[startPos + i];
+                    totalUpper += value * value;
                     foundUpper += 1;
+                    if (value > upperPeak)
+                        upperPeak = value;
                 }
-                else if (values[startPos + i] < 0)
+                else if (value < 0)
                 {
-                    totalLower += values[startPos + i];
+                    totalLower += value * value;
                     foundLower += 1;
+                    if (value < lowerPeak)
+                        lowerPeak = value;
                 }
             }
 
@@ -129,43 +150,37 @@ public class WaveformPanel extends JPanel implements MouseListener
             float lowerAverage = 0;
 
             if (foundUpper > 0)
-                upperAverage = (float) totalUpper / (float) foundUpper;
+                upperAverage = (float) Math.sqrt((float) totalUpper / (float) foundUpper);
             if (foundLower > 0)
-                lowerAverage = (float) totalLower / (float) foundLower;
+                lowerAverage = (float) Math.sqrt((float) totalLower / (float) foundLower) * -1;
 
-            if (upperAverage > maxAverage)
-                maxAverage = upperAverage;
-            if (Math.abs(lowerAverage) > maxAverage)
-                maxAverage = Math.abs(lowerAverage);
+            if (upperPeak > maxValue)
+                maxValue = upperPeak;
+            if (Math.abs(lowerPeak) > maxValue)
+                maxValue = Math.abs(lowerPeak);
 
-            upperAverages[pixel] = upperAverage;
-            lowerAverages[pixel] = lowerAverage;
+            upperRMS[pixel] = upperAverage;
+            lowerRMS[pixel] = lowerAverage;
+            upperPeaks[pixel] = upperPeak;
+            lowerPeaks[pixel] = lowerPeak;
 
             pixel++;
         }
 
         for (int i = 0; i < formWidth; i++)
         {
-            float upperFraction;
-            float lowerFraction;
+            float upperRMSFraction = upperRMS[i] / maxValue;
+            float lowerRMSFraction = lowerRMS[i] / maxValue;
+            float upperPeakFraction = upperPeaks[i] / (float) maxValue;
+            float lowerPeakFraction = lowerPeaks[i] / (float) maxValue;
 
-            if (upperAverages[i] != Float.MAX_VALUE)
-                upperFraction = upperAverages[i] / maxAverage;
-            else
-                upperFraction = 0;
 
-            if (lowerAverages[i] != Float.MAX_VALUE)
-                lowerFraction = lowerAverages[i] / maxAverage;
-            else
-                lowerFraction = 0;
-
-            if (upperAverages[i] == Float.MAX_VALUE)
-                upperFraction = lowerFraction;
-
-            if (lowerAverages[i] == Float.MAX_VALUE)
-                lowerFraction = upperFraction;
-
-            cachedLines.add(new int[]{halfY + Math.round(halfY * upperFraction), halfY + Math.round(halfY * lowerFraction)});
+            lines.add(new int[]{
+                    halfY + Math.round(halfY * upperRMSFraction),
+                    halfY + Math.round(halfY * lowerRMSFraction),
+                    halfY + Math.round(halfY * upperPeakFraction),
+                    halfY + Math.round(halfY * lowerPeakFraction)
+            });
         }
 
         System.out.println(((System.currentTimeMillis() - start)) + "ms to generate lines.");
@@ -214,7 +229,7 @@ public class WaveformPanel extends JPanel implements MouseListener
     {
         if (ready)
         {
-            int totalLines = cachedLines.size();
+            int totalLines = lines.size();
             int linesStart = (int) Math.floor(frameStart / framesPerPixel);
             int x = mouseEvent.getX();
 
