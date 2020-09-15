@@ -29,6 +29,8 @@ public class EffectTimelinePanel extends JPanel
 
         setLayout(new BorderLayout());
 
+        optionsPanel.setPreferredSize(new Dimension(150, 10));
+
         JScrollPane timelineScroll = new JScrollPane();
         timelineScroll.setViewportView(timelinePanel);
 

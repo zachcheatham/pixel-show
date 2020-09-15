@@ -38,6 +38,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     {
         super(Constants.TRANSLATION_APP_TITLE);
 
+        setPreferredSize(new Dimension(1000, 600));
+
         setJMenuBar(new MainWindowMenuBar(this));
         setContentPane(rootPanel);
         pack();

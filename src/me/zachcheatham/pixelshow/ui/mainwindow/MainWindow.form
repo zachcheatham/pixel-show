@@ -37,13 +37,17 @@
                     <constraints>
                       <splitpane position="right"/>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <preferredSize width="10" height="50"/>
+                    </properties>
                   </component>
                   <component id="b4a9" class="me.zachcheatham.pixelshow.ui.mainwindow.effecttimeline.EffectTimelinePanel" binding="effectTimelinePanel" custom-create="true">
                     <constraints>
                       <splitpane position="left"/>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <preferredSize width="10" height="200"/>
+                    </properties>
                   </component>
                 </children>
               </splitpane>
@@ -54,7 +58,7 @@
               <splitpane position="left"/>
             </constraints>
             <properties>
-              <minimumSize width="10" height="100"/>
+              <minimumSize width="10" height="150"/>
             </properties>
           </component>
         </children>
