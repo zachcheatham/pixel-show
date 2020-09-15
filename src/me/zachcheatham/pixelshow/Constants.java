@@ -28,4 +28,6 @@ public class Constants
     public static final String TRANSLATION_ZOOM_IN = "Zoom In";
     public static final String TRANSLATION_ZOOM_OUT = "Zoom Out";
     public static final String TRANSLATION_ZOOM_TO_WINDOW = "Zoom To Window";
+
+    public static final int TRACK_HEIGHT = 60;
 }

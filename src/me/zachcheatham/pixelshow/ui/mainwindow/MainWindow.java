@@ -8,6 +8,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import me.zachcheatham.pixelshow.Constants;
 import me.zachcheatham.pixelshow.show.Show;
 import me.zachcheatham.pixelshow.show.Renderer;
+import me.zachcheatham.pixelshow.ui.mainwindow.effecttimeline.EffectTimelinePanel;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -18,7 +19,7 @@ import java.io.IOException;
 
 import static me.zachcheatham.pixelshow.Constants.TARGET_FPS;
 
-public class MainWindow extends JFrame implements ActionListener, Show.ShowListener, WaveformPanel.WaveformEventListener
+public class MainWindow extends JFrame implements ActionListener, Show.ShowListener, WaveformPanel.WaveformEventListener, EffectTimelinePanel.TimelinePanelListener
 {
     private Renderer showRenderer;
 
@@ -26,10 +27,12 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     private LEDRendererPanel LEDRendererPanel;
     private WaveformPanel waveformPanel;
     private MainWindowToolbar toolbar;
+    private EffectTimelinePanel effectTimelinePanel;
 
     private Show show;
     private float zoomFramesPerPixel = 0.0f;
     private int visibleFramesStart = 0;
+    private int leftOffset = 0;
 
     public MainWindow()
     {
@@ -72,7 +75,12 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             e.printStackTrace();
         }
 
-        setShow(new Show(this));
+        Show show = new Show(this);
+        // TODO Debug Layers
+        for (int i = 0; i < 10; i++)
+            show.createLayer("Layer " + i);
+
+        setShow(show);
     }
 
     private void setShow(Show show)
@@ -80,8 +88,9 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         /*if (this.showRenderer != null)
             this.showRenderer.cleanup()*/
         this.show = show;
-
         setTitle(String.format("%s - %s", Constants.TRANSLATION_APP_TITLE, show.getTitle()));
+
+        effectTimelinePanel.setShow(show);
     }
 
     public Show getShow()
@@ -96,9 +105,10 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
 
     private void zoomToWindow()
     {
-        zoomFramesPerPixel = showRenderer.getTotalFrames() / (float) waveformPanel.getWidth();
+        zoomFramesPerPixel = showRenderer.getTotalFrames() / (float) waveformPanel.getWidthWithOffset();
         visibleFramesStart = 0;
         updateWaveformViewBounds();
+        effectTimelinePanel.setZoom(zoomFramesPerPixel);
     }
 
     private void updateWaveformViewBounds()
@@ -116,7 +126,6 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         fileChooser.setFileFilter(new FileNameExtensionFilter(Constants.WAV_AUDIO, "wav"));
         if (fileChooser.showOpenDialog(source) == JFileChooser.APPROVE_OPTION)
         {
-
             try
             {
                 waveformPanel.setAudio(fileChooser.getSelectedFile());
@@ -126,6 +135,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 e.printStackTrace();
             }
             showRenderer.setAudio(fileChooser.getSelectedFile());
+            effectTimelinePanel.setTotalFrames(showRenderer.getTotalFrames());
             // todo show.setMusicFile(fileChooser.getSelectFile().getPath());
         }
     }
@@ -150,6 +160,43 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             case Constants.TRANSLATION_ZOOM_TO_WINDOW:
                 zoomToWindow();
                 break;
+            case Constants.TRANSLATION_ZOOM_IN:
+                if (zoomFramesPerPixel > 1)
+                {
+                    zoomFramesPerPixel = (float) Math.floor(zoomFramesPerPixel - 1);
+                }
+                else if (zoomFramesPerPixel > 0.1f)
+                {
+                    zoomFramesPerPixel = ((float) Math.floor(zoomFramesPerPixel * 10 - 1)) / 10.0f;
+                }
+                else if (zoomFramesPerPixel > 0.01)
+                {
+                    System.out.println(100);
+                    zoomFramesPerPixel = ((float) Math.floor(zoomFramesPerPixel * 100 - 1)) / 100.0f;
+                }
+                else
+                {
+                    break;
+                }
+                updateWaveformViewBounds();
+                effectTimelinePanel.setZoom(zoomFramesPerPixel);
+                break;
+            case Constants.TRANSLATION_ZOOM_OUT:
+                if (zoomFramesPerPixel < 0.1f)
+                {
+                    zoomFramesPerPixel = ((float) Math.floor(zoomFramesPerPixel * 100 + 1)) / 100.0f;
+                }
+                else if (zoomFramesPerPixel < 1)
+                {
+                    zoomFramesPerPixel = ((float) Math.floor(zoomFramesPerPixel * 10 + 1)) / 10.0f;
+                }
+                else
+                {
+                    zoomFramesPerPixel = (float) Math.floor(zoomFramesPerPixel + 1);
+                }
+                updateWaveformViewBounds();
+                effectTimelinePanel.setZoom(zoomFramesPerPixel);
+                break;
         }
     }
 
@@ -159,34 +206,16 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
 
     }
 
-    @Override
-    public void onShowRenamed(String title)
-    {
-
-    }
-
-    @Override
-    public void onStripSizeUpdated(int size)
-    {
-
-    }
-
-    @Override
-    public void onLayerRemoved(int i)
-    {
-
-    }
-
     public void onFrameChanged(int frame)
     {
-        int visibleFramesEnd = Math.round(waveformPanel.getWidth() * zoomFramesPerPixel) + visibleFramesStart;
+        int visibleFramesEnd = Math.round(waveformPanel.getWidthWithOffset() * zoomFramesPerPixel) + visibleFramesStart;
         if (frame > visibleFramesEnd)
         {
-            visibleFramesStart = frame;
-            updateWaveformViewBounds();
+            effectTimelinePanel.setViewStart(frame);
         }
 
         waveformPanel.setCurrentPosition(Math.round(frame / (float) TARGET_FPS * 1000));
+        effectTimelinePanel.setCurrentPosition(frame);
     }
 
     @Override
@@ -206,5 +235,20 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         LEDRendererPanel = new LEDRendererPanel(this);
         waveformPanel = new WaveformPanel(this);
         toolbar = new MainWindowToolbar(this);
+        effectTimelinePanel = new EffectTimelinePanel(this);
+    }
+
+    @Override
+    public void trackOffsetChanged(int offsetLeft, int offsetRight)
+    {
+        this.leftOffset = offsetLeft;
+        waveformPanel.setOffset(offsetLeft, offsetRight);
+    }
+
+    @Override
+    public void trackScrollChanged(int startFrame)
+    {
+        this.visibleFramesStart = startFrame;
+        updateWaveformViewBounds();
     }
 }

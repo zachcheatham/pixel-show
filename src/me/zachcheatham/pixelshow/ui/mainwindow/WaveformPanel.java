@@ -28,6 +28,8 @@ public class WaveformPanel extends JPanel implements MouseListener
     private int[] values = null;
     private boolean ready = false;
     private int lastHeight = 0;
+    private int offsetLeft = 0;
+    private int offsetRight = 0;
 
     public WaveformPanel(WaveformEventListener listener)
     {
@@ -64,13 +66,13 @@ public class WaveformPanel extends JPanel implements MouseListener
 
             int totalLines = lines.size();
             int linesStart = (int) Math.floor(frameStart / framesPerPixel);
-            int linesEnds = linesStart + getWidth();
+            int linesEnds = linesStart + getWidthWithOffset();
             if (linesEnds > totalLines) linesEnds = lines.size();
 
             final Color rmsColor = new Color(100, 100, 220);
             final Color peakColor = new Color(50, 50, 200);
 
-            int x = 0;
+            int x = offsetLeft;
             for (int i = linesStart; i < linesEnds; i++)
             {
                 int[] lineValues = lines.get(i);
@@ -90,15 +92,21 @@ public class WaveformPanel extends JPanel implements MouseListener
             int playbackLine = (int) Math.floor(playbackFrame / framesPerPixel);
             if (playbackLine >= linesStart && playbackLine <= linesEnds)
             {
-                int playbackX = playbackLine - linesStart;
+                int playbackX = playbackLine - linesStart + offsetLeft;
                 g2.setColor(Color.BLACK);
                 g2.drawLine(playbackX, 0, playbackX, getHeight());
             }
 
-            if (getWidth() > totalLines - linesStart)
+            if (offsetRight > 0 || getWidthWithOffset() > totalLines - linesStart)
             {
                 g2.setColor(Color.DARK_GRAY);
-                g2.fillRect(totalLines - linesStart, 0, getWidth(), getHeight());
+                g2.fillRect(totalLines - linesStart + offsetLeft, 0, getWidth(), getHeight());
+            }
+
+            if (offsetLeft > 0)
+            {
+                g2.setColor(Color.DARK_GRAY);
+                g2.fillRect(0, 0, offsetLeft, getHeight());
             }
         }
     }
@@ -194,9 +202,6 @@ public class WaveformPanel extends JPanel implements MouseListener
 
     public void setViewBounds(int startMS, float msPerPixel)
     {
-        System.out.println("Waveform starts at " + startMS + "ms");
-        System.out.println("Showing " + msPerPixel + "ms per pixel");
-
         if (msPerPixel != this.msPerPixel)
         {
             this.msPerPixel = msPerPixel;
@@ -210,6 +215,18 @@ public class WaveformPanel extends JPanel implements MouseListener
         frameStart = Math.round(startMS / 1000.0f * frameRate);
 
         repaint();
+    }
+
+    public void setOffset(int offsetLeft, int offsetRight)
+    {
+        this.offsetLeft = offsetLeft;
+        this.offsetRight = offsetRight;
+        repaint();
+    }
+
+    public int getWidthWithOffset()
+    {
+        return getWidth() - offsetLeft - offsetRight;
     }
 
     @Override
@@ -231,7 +248,8 @@ public class WaveformPanel extends JPanel implements MouseListener
         {
             int totalLines = lines.size();
             int linesStart = (int) Math.floor(frameStart / framesPerPixel);
-            int x = mouseEvent.getX();
+
+            int x = mouseEvent.getX() - offsetLeft;
 
             if (x <= totalLines - linesStart)
             {

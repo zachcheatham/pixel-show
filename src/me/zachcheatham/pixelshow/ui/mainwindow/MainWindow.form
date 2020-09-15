@@ -39,17 +39,12 @@
                     </constraints>
                     <properties/>
                   </component>
-                  <scrollpane id="7dc11">
+                  <component id="b4a9" class="me.zachcheatham.pixelshow.ui.mainwindow.effecttimeline.EffectTimelinePanel" binding="effectTimelinePanel" custom-create="true">
                     <constraints>
                       <splitpane position="left"/>
                     </constraints>
-                    <properties>
-                      <horizontalScrollBarPolicy value="32"/>
-                      <verticalScrollBarPolicy value="22"/>
-                    </properties>
-                    <border type="none"/>
-                    <children/>
-                  </scrollpane>
+                    <properties/>
+                  </component>
                 </children>
               </splitpane>
             </children>
