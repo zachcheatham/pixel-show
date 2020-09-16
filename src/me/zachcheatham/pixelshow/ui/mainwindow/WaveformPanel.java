@@ -192,12 +192,13 @@ public class WaveformPanel extends JPanel implements MouseListener
         }
 
         System.out.println(((System.currentTimeMillis() - start)) + "ms to generate lines.");
+
+        repaint();
     }
 
     public void setCurrentPosition(int millisecond)
     {
         playbackFrame = Math.round(millisecond / 1000.0f * frameRate);
-        repaint();
     }
 
     public void setViewBounds(int startMS, float msPerPixel)
@@ -213,15 +214,12 @@ public class WaveformPanel extends JPanel implements MouseListener
         }
 
         frameStart = Math.round(startMS / 1000.0f * frameRate);
-
-        repaint();
     }
 
     public void setOffset(int offsetLeft, int offsetRight)
     {
         this.offsetLeft = offsetLeft;
         this.offsetRight = offsetRight;
-        repaint();
     }
 
     public int getWidthWithOffset()

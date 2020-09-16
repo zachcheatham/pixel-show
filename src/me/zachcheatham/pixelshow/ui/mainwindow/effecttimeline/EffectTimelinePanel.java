@@ -13,7 +13,8 @@ public class EffectTimelinePanel extends JPanel
 {
     private final JScrollBar horizontalScrollBar;
     private final JPanel optionsPanel = new JPanel();
-    private final JPanel timelinePanel = new TimeIndicatorJPanel();
+    private final JPanel timelinePanel = new JPanel();
+    private final TimeIndicatorJScrollPane timelineScroll = new TimeIndicatorJScrollPane();
     private final List<LayerPair> layerPairs = new LinkedList<>();
     private final TimelinePanelListener listener;
     private int totalFrames = 0;
@@ -31,7 +32,6 @@ public class EffectTimelinePanel extends JPanel
 
         optionsPanel.setPreferredSize(new Dimension(150, 10));
 
-        JScrollPane timelineScroll = new JScrollPane();
         timelineScroll.setViewportView(timelinePanel);
 
         timelineScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -48,6 +48,7 @@ public class EffectTimelinePanel extends JPanel
         });
 
         timelinePanel.setLayout(new BoxLayout(timelinePanel, BoxLayout.PAGE_AXIS));
+
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, optionsPanel, timelineScroll);
         splitPane.addPropertyChangeListener(propertyChangeEvent -> {
@@ -109,7 +110,11 @@ public class EffectTimelinePanel extends JPanel
     public void setCurrentPosition(int frame)
     {
         currentFrame = frame;
-        timelinePanel.repaint();
+    }
+
+    public void repaintPosition()
+    {
+        timelineScroll.repaintIndicator();
     }
 
     public interface TimelinePanelListener
@@ -118,16 +123,29 @@ public class EffectTimelinePanel extends JPanel
         void trackScrollChanged(int startFrame);
     }
 
-    private class TimeIndicatorJPanel extends JPanel
+    private class TimeIndicatorJScrollPane extends JScrollPane
     {
+        private final int scrollXSize = getVerticalScrollBar().getPreferredSize().width;
+        private final int scrollYSize = getHorizontalScrollBar().getPreferredSize().height;
+        private int lastPosition = 0;
+
         @Override
         public void paint(Graphics g)
         {
             super.paint(g);
 
-            int x = (int) Math.floor(currentFrame / zoomFramesPerPixel);
+            int x = (int) Math.floor(currentFrame / zoomFramesPerPixel) - horizontalScrollBar.getValue();
             g.setColor(Color.BLACK);
-            g.drawLine(x, 0, x, getHeight());
+            g.drawLine(x , 0, x, getHeight() - scrollYSize);
+        }
+
+        public void repaintIndicator()
+        {
+            if (currentFrame != lastPosition)
+            {
+                repaint(0, 0, getWidth() - scrollXSize + 1, getHeight() - scrollYSize + 1);
+                lastPosition = currentFrame;
+            }
         }
     }
 }

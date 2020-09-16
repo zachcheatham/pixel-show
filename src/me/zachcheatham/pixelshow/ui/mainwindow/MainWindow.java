@@ -17,14 +17,20 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+
 import static me.zachcheatham.pixelshow.Constants.TARGET_FPS;
 
 public class MainWindow extends JFrame implements ActionListener, Show.ShowListener, WaveformPanel.WaveformEventListener, EffectTimelinePanel.TimelinePanelListener
 {
+    private final Timer timer = new Timer();
     private Renderer showRenderer;
+    private int lastPaintFrame = 0;
 
     private JPanel rootPanel;
-    private LEDRendererPanel LEDRendererPanel;
+    private PreviewPanel PreviewPanel;
     private WaveformPanel waveformPanel;
     private MainWindowToolbar toolbar;
     private EffectTimelinePanel effectTimelinePanel;
@@ -83,6 +89,32 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             show.createLayer("Layer " + i);
 
         setShow(show);
+
+        timer.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                int currentFrame = showRenderer.getCurrentFrame();
+                if (currentFrame != lastPaintFrame)
+                {
+                    int visibleFramesEnd = Math.round(waveformPanel.getWidthWithOffset() * zoomFramesPerPixel) + visibleFramesStart;
+
+                    if (currentFrame > visibleFramesEnd)
+                        effectTimelinePanel.setViewStart(currentFrame);
+
+                    waveformPanel.setCurrentPosition(Math.round(currentFrame / (float) TARGET_FPS * 1000));
+                    effectTimelinePanel.setCurrentPosition(currentFrame);
+
+                    waveformPanel.repaint();
+                    effectTimelinePanel.repaintPosition();
+
+                    lastPaintFrame = currentFrame;
+                }
+
+                PreviewPanel.repaint();
+            }
+        }, 100, 33);
     }
 
     private void setShow(Show show)
@@ -208,18 +240,6 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
 
     }
 
-    public void onFrameChanged(int frame)
-    {
-        int visibleFramesEnd = Math.round(waveformPanel.getWidthWithOffset() * zoomFramesPerPixel) + visibleFramesStart;
-        if (frame > visibleFramesEnd)
-        {
-            effectTimelinePanel.setViewStart(frame);
-        }
-
-        waveformPanel.setCurrentPosition(Math.round(frame / (float) TARGET_FPS * 1000));
-        effectTimelinePanel.setCurrentPosition(frame);
-    }
-
     @Override
     public void onScrub(int millisecondPosition)
     {
@@ -234,7 +254,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
 
     private void createUIComponents()
     {
-        LEDRendererPanel = new LEDRendererPanel(this);
+        PreviewPanel = new PreviewPanel(this);
         waveformPanel = new WaveformPanel(this);
         toolbar = new MainWindowToolbar(this);
         effectTimelinePanel = new EffectTimelinePanel(this);

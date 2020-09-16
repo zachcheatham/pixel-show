@@ -10,7 +10,7 @@ public class Renderer
     private Clip clip = AudioSystem.getClip();
     private long pausedPosition = 0;
     private int totalFrames = 0;
-    private int currentFrame =0;
+    private int currentFrame = 0;
     private File audioFile;
 
     public Renderer() throws LineUnavailableException
@@ -36,7 +36,6 @@ public class Renderer
     public void setPlaybackPosition(long microsecondPosition)
     {
         clip.setMicrosecondPosition(microsecondPosition);
-        System.out.println("Set position");
     }
 
     public void pause()

@@ -7,6 +7,10 @@ public class Constants
     public final static String VERSION = "0.0.1-dev";
     public final static Locale LOCALE = Locale.US;
 
+    public static final int TRACK_HEIGHT = 60;
+
+    public static final int TARGET_FPS = 30;
+
     public final static String TRANSLATION_APP_TITLE = "Pixel Show ALPHA";
     public final static String TRANSLATION_FILE = "File";
     public static final String TRANSLATION_OPEN_SHOW = "Open Show...";
@@ -23,11 +27,9 @@ public class Constants
     public static final String WAV_AUDIO = "WAV Audio";
     public static final String TRANSLATION_PLAY = "Play";
     public static final String TRANSLATION_PAUSE = "Pause";
-
-    public static final int TARGET_FPS = 30;
+    public static final String TRANSLATION_LAYERS = "Layers";
     public static final String TRANSLATION_ZOOM_IN = "Zoom In";
     public static final String TRANSLATION_ZOOM_OUT = "Zoom Out";
     public static final String TRANSLATION_ZOOM_TO_WINDOW = "Zoom To Window";
-
-    public static final int TRACK_HEIGHT = 60;
+    public static final String TRANSLATION_ADD_LAYER = "Add Layer";
 }

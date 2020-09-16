@@ -53,7 +53,7 @@
               </splitpane>
             </children>
           </grid>
-          <component id="f7c2b" class="me.zachcheatham.pixelshow.ui.mainwindow.LEDRendererPanel" binding="LEDRendererPanel" custom-create="true">
+          <component id="f7c2b" class="me.zachcheatham.pixelshow.ui.mainwindow.PreviewPanel" binding="PreviewPanel" custom-create="true">
             <constraints>
               <splitpane position="left"/>
             </constraints>
