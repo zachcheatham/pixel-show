@@ -18,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -81,7 +82,15 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         }
         catch (LineUnavailableException e)
         {
-            e.printStackTrace();
+            LOG.fatal("Unable to open audio line.", e);
+
+            JOptionPane.showMessageDialog(this,
+                    Constants.TRANSLATION_ERROR_AUDIO_LINE,
+                    Constants.TRANSLATION_ERROR_AUDIO_LINE_TITLE,
+                    JOptionPane.ERROR_MESSAGE);
+
+            dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+            return;
         }
 
         Show show = new Show(this);
@@ -133,9 +142,29 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             {
                 setAudio(new File(show.getAudioLocation()));
             }
-            catch (IOException | UnsupportedAudioFileException e)
+            catch (IOException e)
             {
-                e.printStackTrace();
+                LOG.error("Unable to open audio file.", e);
+
+                JOptionPane.showMessageDialog(this,
+                        String.format(Constants.TRANSLATION_ERROR_AUDIO_FILE, show.getAudioLocation()),
+                        Constants.TRANSLATION_ERROR_AUDIO_FILE_TITLE,
+                        JOptionPane.WARNING_MESSAGE);
+
+                show.setAudioLocation(null);
+                openMP3Chooser(null);
+            }
+            catch (UnsupportedAudioFileException e)
+            {
+                LOG.error(String.format("Unsupported audio file %s", show.getAudioLocation()), e);
+
+                JOptionPane.showMessageDialog(this,
+                        String.format(Constants.TRANSLATION_ERROR_UNSUPPORTED_AUDIO_FILE, FilenameUtils.getBaseName(show.getAudioLocation())),
+                        Constants.TRANSLATION_ERROR_UNSUPPORTED_AUDIO_FILE_TITLE,
+                        JOptionPane.WARNING_MESSAGE);
+
+                show.setAudioLocation(null);
+                openMP3Chooser(null);
             }
         }
     }
@@ -194,7 +223,12 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            LOG.error("Unable to save show.", e);
+
+            JOptionPane.showMessageDialog(this,
+                    String.format(Constants.TRANSLATION_ERROR_SAVING_FILE, show.getFileLocation()),
+                    Constants.TRANSLATION_ERROR_SAVING_FILE_TITLE,
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -211,9 +245,14 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 Show show = ShowIO.readShow(fileChooser.getSelectedFile(), this);
                 setShow(show);
             }
-            catch (Exception e)
+            catch (FileNotFoundException e)
             {
-                e.printStackTrace();
+                LOG.error("File not found while opening show", e);
+
+                JOptionPane.showMessageDialog(this,
+                        String.format(Constants.TRANSLATION_ERROR_FILE_NOT_FOUND, fileChooser.getSelectedFile().getAbsolutePath()),
+                        Constants.TRANSLATION_ERROR_FILE_NOT_FOUND_TITLE,
+                        JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -226,14 +265,36 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         fileChooser.setFileFilter(new FileNameExtensionFilter(Constants.WAV_AUDIO, "wav"));
         if (fileChooser.showOpenDialog(source) == JFileChooser.APPROVE_OPTION)
         {
+            File selectedFile = fileChooser.getSelectedFile();
+            String filePath = selectedFile.getAbsolutePath();
+
             try
             {
-                setAudio(fileChooser.getSelectedFile());
-                show.setAudioLocation(fileChooser.getSelectedFile().getAbsolutePath());
+                setAudio(selectedFile);
+                show.setAudioLocation(filePath);
             }
-            catch (IOException | UnsupportedAudioFileException e)
+            catch (UnsupportedAudioFileException e)
             {
-                e.printStackTrace();
+                LOG.error(String.format("Unsupported file %s", filePath), e);
+
+                JOptionPane.showMessageDialog(this,
+                        String.format(Constants.TRANSLATION_ERROR_UNSUPPORTED_AUDIO_FILE, FilenameUtils.getBaseName(filePath)),
+                        Constants.TRANSLATION_ERROR_UNSUPPORTED_AUDIO_FILE_TITLE,
+                        JOptionPane.WARNING_MESSAGE);
+
+                openMP3Chooser(source);
+            }
+            catch (IOException e)
+            {
+                LOG.error(String.format("Unable to open audio file %s", filePath), e);
+
+                JOptionPane.showMessageDialog(this,
+                        String.format(Constants.TRANSLATION_ERROR_AUDIO_FILE, filePath),
+                        Constants.TRANSLATION_ERROR_AUDIO_FILE_TITLE,
+                        JOptionPane.WARNING_MESSAGE);
+
+                show.setAudioLocation(null);
+                openMP3Chooser(null);
             }
         }
     }

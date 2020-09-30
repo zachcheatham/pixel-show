@@ -39,4 +39,15 @@ public class Constants
     public static final String TRANSLATE_FORMAT_RENAME_LAYER = "Rename Layer \"%s\"";
     public static final String TRANSLATION_SAVE_SHOW_TITLE = "Save Show \"%s\" As...";
     public static final String TRANSLATION_JSON_SHOW_FILE = "Show File (*.pxlshw)";
+    public static final String TRANSLATION_ERROR_AUDIO_LINE_TITLE = "Unable to Open Audio Line";
+    public static final String TRANSLATION_ERROR_AUDIO_LINE = "Unable to open audio line for output. The application will now close.";
+    public static final String TRANSLATION_ERROR_AUDIO_FILE_TITLE = "Unable to Open Audio File";
+    public static final String TRANSLATION_ERROR_AUDIO_FILE = "There was an error while opening %s. Please select the WAV file again.";
+    public static final String TRANSLATION_ERROR_UNSUPPORTED_AUDIO_FILE_TITLE = "Unsupported audio file.";
+    public static final String TRANSLATION_ERROR_UNSUPPORTED_AUDIO_FILE = "The audio file %s is not supported. " +
+            "This application currently only supports WAV files. Please choose another file...";
+    public static final String TRANSLATION_ERROR_SAVING_FILE_TITLE = "Unable to Save Show";
+    public static final String TRANSLATION_ERROR_SAVING_FILE = "Unable to save show to %s. Please make sure this location is available and has permission to be written to.";
+    public static final String TRANSLATION_ERROR_FILE_NOT_FOUND_TITLE = "File Not Found";
+    public static final String TRANSLATION_ERROR_FILE_NOT_FOUND = "Unable to open %s";
 }

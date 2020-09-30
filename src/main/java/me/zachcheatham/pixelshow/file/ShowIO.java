@@ -41,7 +41,7 @@ public class ShowIO
         fileWriter.close();
     }
 
-    public static Show readShow(File file, Show.ShowListener showListener) throws Exception
+    public static Show readShow(File file, Show.ShowListener showListener) throws FileNotFoundException
     {
         FileReader fileReader = new FileReader(file);
 
