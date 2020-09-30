@@ -2,12 +2,7 @@ package me.zachcheatham.pixelshow.show;
 
 public class Layer
 {
-    private String name;
-
-    public Layer(String layerName)
-    {
-        name = layerName;
-    }
+    private String name = "Untitled Layer";
 
     public String getName()
     {

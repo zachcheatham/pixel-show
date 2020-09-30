@@ -11,6 +11,8 @@ public class Constants
 
     public static final int TARGET_FPS = 30;
 
+    public static final String SAVE_EXTENSION = "pxlshw";
+
     public final static String TRANSLATION_APP_TITLE = "Pixel Show ALPHA";
     public final static String TRANSLATION_FILE = "File";
     public static final String TRANSLATION_OPEN_SHOW = "Open Show...";
@@ -35,4 +37,6 @@ public class Constants
     public static final String TRANSLATION_RENAME = "Rename";
     public static final String TRANSLATE_ENTER_NEW_NAME = "Enter new name";
     public static final String TRANSLATE_FORMAT_RENAME_LAYER = "Rename Layer \"%s\"";
+    public static final String TRANSLATION_SAVE_SHOW_TITLE = "Save Show \"%s\" As...";
+    public static final String TRANSLATION_JSON_SHOW_FILE = "Show File (*.pxlshw)";
 }

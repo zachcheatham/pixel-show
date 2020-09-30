@@ -1,25 +1,25 @@
 package me.zachcheatham.pixelshow.ui.mainwindow;
 
+import me.zachcheatham.pixelshow.Constants;
+import me.zachcheatham.pixelshow.file.ShowIO;
+import me.zachcheatham.pixelshow.show.Renderer;
+import me.zachcheatham.pixelshow.show.Show;
+import me.zachcheatham.pixelshow.ui.mainwindow.effecttimeline.EffectTimelinePanel;
+import org.apache.commons.io.FilenameUtils;
+
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import me.zachcheatham.pixelshow.Constants;
-import me.zachcheatham.pixelshow.show.Show;
-import me.zachcheatham.pixelshow.show.Renderer;
-import me.zachcheatham.pixelshow.ui.mainwindow.effecttimeline.EffectTimelinePanel;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
-
 import java.util.Timer;
 import java.util.TimerTask;
-
 
 import static me.zachcheatham.pixelshow.Constants.TARGET_FPS;
 
@@ -37,7 +37,6 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     private Show show;
     private float zoomFramesPerPixel = 0.0f;
     private int visibleFramesStart = 0;
-    private int leftOffset = 0;
 
     public MainWindow()
     {
@@ -122,6 +121,20 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         setTitle(String.format("%s - %s", Constants.TRANSLATION_APP_TITLE, show.getTitle()));
 
         effectTimelinePanel.setShow(show);
+
+        System.out.println(show.getAudioLocation());
+
+        if (show.getAudioLocation() != null)
+        {
+            try
+            {
+                setAudio(new File(show.getAudioLocation()));
+            }
+            catch (IOException | UnsupportedAudioFileException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
     public Show getShow()
@@ -149,7 +162,60 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         waveformPanel.setViewBounds((int) startMS, msPerPixel);
     }
 
-    public void openMP3Chooser(Component source)
+    private void saveShow(Component source)
+    {
+        if (show.getFileLocation() == null)
+        {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle(String.format(Constants.TRANSLATION_SAVE_SHOW_TITLE, show.getTitle()));
+            fileChooser.setFileFilter(new FileNameExtensionFilter(Constants.TRANSLATION_JSON_SHOW_FILE, Constants.SAVE_EXTENSION));
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            if (fileChooser.showSaveDialog(source) == JFileChooser.APPROVE_OPTION)
+            {
+                String path = fileChooser.getSelectedFile().getAbsolutePath();
+
+                if (!FilenameUtils.getExtension(path).equals(Constants.SAVE_EXTENSION))
+                    path += String.format(".%s", Constants.SAVE_EXTENSION);
+
+                show.setFileLocation(path);
+            }
+            else
+                return;
+        }
+
+        try
+        {
+            ShowIO.writeShow(show);
+            show.setUnsaved(false);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void openShow(Component source)
+    {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle(Constants.TRANSLATION_OPEN_SHOW);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setFileFilter(new FileNameExtensionFilter(Constants.TRANSLATION_JSON_SHOW_FILE, Constants.SAVE_EXTENSION));
+        if (fileChooser.showOpenDialog(source) == JFileChooser.APPROVE_OPTION)
+        {
+            try
+            {
+                Show show = ShowIO.readShow(fileChooser.getSelectedFile(), this);
+                setShow(show);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void openMP3Chooser(Component source)
     {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle(Constants.TRANSLATION_OPEN_WAV);
@@ -159,16 +225,21 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         {
             try
             {
-                waveformPanel.setAudio(fileChooser.getSelectedFile());
+                setAudio(fileChooser.getSelectedFile());
+                show.setAudioLocation(fileChooser.getSelectedFile().getAbsolutePath());
             }
             catch (IOException | UnsupportedAudioFileException e)
             {
                 e.printStackTrace();
             }
-            showRenderer.setAudio(fileChooser.getSelectedFile());
-            effectTimelinePanel.setTotalFrames(showRenderer.getTotalFrames());
-            // todo show.setMusicFile(fileChooser.getSelectFile().getPath());
         }
+    }
+
+    private void setAudio(File audioFile) throws IOException, UnsupportedAudioFileException
+    {
+        waveformPanel.setAudio(audioFile);
+        showRenderer.setAudio(audioFile);
+        effectTimelinePanel.setTotalFrames(showRenderer.getTotalFrames());
     }
 
     @Override
@@ -176,6 +247,12 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     {
         switch (e.getActionCommand())
         {
+            case Constants.TRANSLATION_OPEN_SHOW:
+                openShow((Component) e.getSource());
+                break;
+            case Constants.TRANSLATION_SAVE_SHOW:
+                saveShow((Component) e.getSource());
+                break;
             case Constants.TRANSLATION_CLOSE_APP:
                 dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
                 break;
@@ -269,7 +346,6 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     @Override
     public void trackOffsetChanged(int offsetLeft, int offsetRight)
     {
-        this.leftOffset = offsetLeft;
         waveformPanel.setOffset(offsetLeft, offsetRight);
     }
 

@@ -11,12 +11,25 @@ public class Show
     private final ShowListener showListener;
 
     private String title = Constants.TRANSLATION_UNTITLED_SHOW;
+    private String audioLocation = null;
+    private String fileLocation = null;
     private boolean unsaved = false;
+    private boolean reading = false;
     private int lightStripSize = 30;
 
     public Show(ShowListener listener)
     {
         this.showListener = listener;
+    }
+
+    public void setReading(boolean reading)
+    {
+        this.reading = reading;
+    }
+
+    public boolean isReading()
+    {
+        return reading;
     }
 
     public boolean isUnsaved()
@@ -26,8 +39,11 @@ public class Show
 
     public void setUnsaved(boolean unsaved)
     {
-        this.unsaved = unsaved;
-        showListener.onShowSavedChanged(unsaved);
+        if (!reading)
+        {
+            this.unsaved = unsaved;
+            showListener.onShowSavedChanged(unsaved);
+        }
     }
 
     public String getTitle()
@@ -39,6 +55,26 @@ public class Show
     {
         this.title = title;
         setUnsaved(true);
+    }
+
+    public String getFileLocation()
+    {
+        return fileLocation;
+    }
+
+    public void setFileLocation(String fileLocation)
+    {
+        this.fileLocation = fileLocation;
+    }
+
+    public String getAudioLocation()
+    {
+        return audioLocation;
+    }
+
+    public void setAudioLocation(String audioLocation)
+    {
+        this.audioLocation = audioLocation;
     }
 
     public int getLEDLength()
@@ -54,9 +90,19 @@ public class Show
 
     public void createLayer(String layerName)
     {
-        layers.add(new Layer(layerName));
-        setUnsaved(true);
-        showListener.onLayerAdded(layers.size() - 1);
+        Layer layer = new Layer();
+        layer.setName(layerName);
+        addLayer(layer);
+    }
+
+    public void addLayer(Layer layer)
+    {
+        layers.add(layer);
+        if (!reading)
+        {
+            setUnsaved(true);
+            showListener.onLayerAdded(layers.size() - 1);
+        }
     }
 
     public int getLayerCount()
