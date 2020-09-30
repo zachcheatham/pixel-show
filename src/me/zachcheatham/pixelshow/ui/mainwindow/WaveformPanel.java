@@ -214,12 +214,14 @@ public class WaveformPanel extends JPanel implements MouseListener
         }
 
         frameStart = Math.round(startMS / 1000.0f * frameRate);
+        repaint();
     }
 
     public void setOffset(int offsetLeft, int offsetRight)
     {
         this.offsetLeft = offsetLeft;
         this.offsetRight = offsetRight;
+        repaint();
     }
 
     public int getWidthWithOffset()

@@ -32,4 +32,7 @@ public class Constants
     public static final String TRANSLATION_ZOOM_OUT = "Zoom Out";
     public static final String TRANSLATION_ZOOM_TO_WINDOW = "Zoom To Window";
     public static final String TRANSLATION_ADD_LAYER = "Add Layer";
+    public static final String TRANSLATION_RENAME = "Rename";
+    public static final String TRANSLATE_ENTER_NEW_NAME = "Enter new name";
+    public static final String TRANSLATE_FORMAT_RENAME_LAYER = "Rename Layer \"%s\"";
 }

@@ -25,7 +25,6 @@ import static me.zachcheatham.pixelshow.Constants.TARGET_FPS;
 
 public class MainWindow extends JFrame implements ActionListener, Show.ShowListener, WaveformPanel.WaveformEventListener, EffectTimelinePanel.TimelinePanelListener
 {
-    private final Timer timer = new Timer();
     private Renderer showRenderer;
     private int lastPaintFrame = 0;
 
@@ -84,12 +83,10 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         }
 
         Show show = new Show(this);
-        // TODO Debug Layers
-        for (int i = 0; i < 10; i++)
-            show.createLayer("Layer " + i);
 
         setShow(show);
 
+        Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask()
         {
             @Override
@@ -231,6 +228,9 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 updateWaveformViewBounds();
                 effectTimelinePanel.setZoom(zoomFramesPerPixel);
                 break;
+            case Constants.TRANSLATION_ADD_LAYER:
+                show.createLayer("New Layer");
+                break;
         }
     }
 
@@ -238,6 +238,12 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     public void onShowSavedChanged(boolean saved)
     {
 
+    }
+
+    @Override
+    public void onLayerAdded(int position)
+    {
+        effectTimelinePanel.updateViewsForShow();
     }
 
     @Override

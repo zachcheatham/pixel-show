@@ -12,6 +12,8 @@ public class MainWindowToolbar extends JToolBar
     {
         addButton(w, Constants.TRANSLATION_PLAY);
         addSeparator();
+        addButton(w, Constants.TRANSLATION_ADD_LAYER);
+        addSeparator();
         addButton(w, Constants.TRANSLATION_ZOOM_IN);
         addButton(w, Constants.TRANSLATION_ZOOM_OUT);
         addButton(w, Constants.TRANSLATION_ZOOM_TO_WINDOW);

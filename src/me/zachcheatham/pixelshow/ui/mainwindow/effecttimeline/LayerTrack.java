@@ -21,6 +21,5 @@ public class LayerTrack extends JPanel
 
         g.setColor(Color.DARK_GRAY);
         g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
-        g.drawLine(getWidth() - 5, 0, getWidth() - 5, getHeight() - 1);
     }
 }

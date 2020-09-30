@@ -56,6 +56,7 @@ public class Show
     {
         layers.add(new Layer(layerName));
         setUnsaved(true);
+        showListener.onLayerAdded(layers.size() - 1);
     }
 
     public int getLayerCount()
@@ -80,5 +81,6 @@ public class Show
     public interface ShowListener
     {
         void onShowSavedChanged(boolean saved);
+        void onLayerAdded(int position);
     }
 }

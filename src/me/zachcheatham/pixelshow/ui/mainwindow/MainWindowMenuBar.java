@@ -22,6 +22,11 @@ public class MainWindowMenuBar extends JMenuBar
         addMenuItem(mainWindow, music, Constants.TRANSLATION_SET_WAV);
         addMenuItem(mainWindow, music, Constants.TRANSLATION_PLAY);
         addMenuItem(mainWindow, music, Constants.TRANSLATION_PAUSE);
+
+        JMenu layers = new JMenu(Constants.TRANSLATION_LAYERS);
+        add(layers);
+
+        addMenuItem(mainWindow, layers, Constants.TRANSLATION_ADD_LAYER);
     }
 
     private void addMenuItem(MainWindow window, JMenu parent, String title)

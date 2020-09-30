@@ -15,6 +15,7 @@ public class EffectTimelinePanel extends JPanel
     private final JPanel optionsPanel = new JPanel();
     private final JPanel timelinePanel = new JPanel();
     private final TimeIndicatorJScrollPane timelineScroll = new TimeIndicatorJScrollPane();
+    private final JScrollPane optionsScroll = new JScrollPane();
     private final List<LayerPair> layerPairs = new LinkedList<>();
     private final TimelinePanelListener listener;
     private int totalFrames = 0;
@@ -31,9 +32,14 @@ public class EffectTimelinePanel extends JPanel
         setLayout(new BorderLayout());
 
         optionsPanel.setPreferredSize(new Dimension(150, 10));
+        optionsPanel.setLayout(new TrackLayout());
+
+        optionsScroll.setViewportView(optionsPanel);
+        optionsScroll.setBorder(null);
+        optionsScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        optionsScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         timelineScroll.setViewportView(timelinePanel);
-
         timelineScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         timelineScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         timelineScroll.setBorder(null);
@@ -47,10 +53,12 @@ public class EffectTimelinePanel extends JPanel
             }
         });
 
-        timelinePanel.setLayout(new BoxLayout(timelinePanel, BoxLayout.PAGE_AXIS));
+        timelineScroll.getVerticalScrollBar().addAdjustmentListener(adjustmentEvent ->
+            optionsScroll.getVerticalScrollBar().setValue(adjustmentEvent.getValue()));
 
+        timelinePanel.setLayout(new TrackLayout());
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, optionsPanel, timelineScroll);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, optionsScroll, timelineScroll);
         splitPane.addPropertyChangeListener(propertyChangeEvent -> {
             if (propertyChangeEvent.getPropertyName().equals(JSplitPane.LAST_DIVIDER_LOCATION_PROPERTY))
             {
@@ -67,20 +75,23 @@ public class EffectTimelinePanel extends JPanel
         updateViewsForShow();
     }
 
-    private void updateViewsForShow()
+    public void updateViewsForShow()
     {
         layerPairs.clear();
+        timelinePanel.removeAll();
+        optionsPanel.removeAll();
 
         for (Layer layer : show.layers)
         {
             LayerPair layerPair = new LayerPair(layer);
             layerPairs.add(layerPair);
             timelinePanel.add(layerPair.layerTrack);
-            layerPair.layerTrack.setMinimumSize(new Dimension(0, Constants.TRACK_HEIGHT));
-            layerPair.layerTrack.setAlignmentX(LEFT_ALIGNMENT);
+            optionsPanel.add(layerPair.layerOptions);
         }
 
         updateLayerBounds();
+        timelinePanel.doLayout(); // TODO WHY
+        optionsPanel.doLayout();
     }
 
     public void setViewStart(int frame)
@@ -105,6 +116,13 @@ public class EffectTimelinePanel extends JPanel
         timelinePanel.setPreferredSize(new Dimension(
                 Math.round(totalFrames / zoomFramesPerPixel),
                 Constants.TRACK_HEIGHT * layerPairs.size()));
+
+        optionsPanel.setPreferredSize(new Dimension(
+                optionsPanel.getWidth(),
+                Constants.TRACK_HEIGHT * layerPairs.size() + horizontalScrollBar.getPreferredSize().height
+        ));
+
+        repaint();
     }
 
     public void setCurrentPosition(int frame)
