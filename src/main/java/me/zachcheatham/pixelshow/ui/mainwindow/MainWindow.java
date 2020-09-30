@@ -6,6 +6,7 @@ import me.zachcheatham.pixelshow.show.Renderer;
 import me.zachcheatham.pixelshow.show.Show;
 import me.zachcheatham.pixelshow.ui.mainwindow.effecttimeline.EffectTimelinePanel;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -25,6 +26,8 @@ import static me.zachcheatham.pixelshow.Constants.TARGET_FPS;
 
 public class MainWindow extends JFrame implements ActionListener, Show.ShowListener, WaveformPanel.WaveformEventListener, EffectTimelinePanel.TimelinePanelListener
 {
+    private final Logger LOG = Logger.getLogger(getClass().getSimpleName());
+
     private Renderer showRenderer;
     private int lastPaintFrame = 0;
 
@@ -117,12 +120,12 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     {
         /*if (this.showRenderer != null)
             this.showRenderer.cleanup()*/
+        LOG.info(String.format("Show opened: %s", show.getTitle()));
+
         this.show = show;
         setTitle(String.format("%s - %s", Constants.TRANSLATION_APP_TITLE, show.getTitle()));
 
         effectTimelinePanel.setShow(show);
-
-        System.out.println(show.getAudioLocation());
 
         if (show.getAudioLocation() != null)
         {
@@ -237,6 +240,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
 
     private void setAudio(File audioFile) throws IOException, UnsupportedAudioFileException
     {
+        LOG.info(String.format("Opening Audio: %s", audioFile.getName()));
+
         waveformPanel.setAudio(audioFile);
         showRenderer.setAudio(audioFile);
         effectTimelinePanel.setTotalFrames(showRenderer.getTotalFrames());
@@ -279,7 +284,6 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 }
                 else if (zoomFramesPerPixel > 0.01)
                 {
-                    System.out.println(100);
                     zoomFramesPerPixel = ((float) Math.floor(zoomFramesPerPixel * 100 - 1)) / 100.0f;
                 }
                 else

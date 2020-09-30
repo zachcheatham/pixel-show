@@ -1,5 +1,7 @@
 package me.zachcheatham.pixelshow.ui.mainwindow;
 
+import org.apache.log4j.Logger;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -14,6 +16,8 @@ import java.util.Vector;
 
 public class WaveformPanel extends JPanel implements MouseListener
 {
+    private final Logger LOG = Logger.getLogger(getClass().getSimpleName());
+
     private final SamplingRenderer renderer = new SamplingRenderer();
     private final Vector<int[]> lines = new Vector<>();
     private final WaveformEventListener eventListener;
@@ -44,7 +48,7 @@ public class WaveformPanel extends JPanel implements MouseListener
         frameRate = audioStream.getFormat().getFrameRate();
         totalDuration = Math.round((audioStream.getFrameLength() * 1000) / frameRate);
 
-        new Thread(renderer).start();
+        new Thread(renderer, "Waveform Thread").start();
 
         addMouseListener(this);
     }
@@ -191,7 +195,8 @@ public class WaveformPanel extends JPanel implements MouseListener
             });
         }
 
-        System.out.println(((System.currentTimeMillis() - start)) + "ms to generate lines.");
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("%dms to generate lines.", (System.currentTimeMillis() - start)));
 
         repaint();
     }
@@ -283,7 +288,9 @@ public class WaveformPanel extends JPanel implements MouseListener
         @Override
         public void run()
         {
-            long start = System.currentTimeMillis();
+            long start = 0;
+            if (LOG.isDebugEnabled())
+                start = System.currentTimeMillis();
 
             AudioFormat audioFormat = audioStream.getFormat();
             int sampleSize = audioFormat.getSampleSizeInBits();
@@ -373,7 +380,8 @@ public class WaveformPanel extends JPanel implements MouseListener
                 e.printStackTrace();
             }
 
-            System.out.println(((System.currentTimeMillis() - start)) + "ms to read audio waveform.");
+            if (LOG.isDebugEnabled())
+                LOG.debug(String.format("%dms to read audio waveform.", (System.currentTimeMillis() - start)));
 
             eventListener.onWaveformRendered(totalDuration);
         }
