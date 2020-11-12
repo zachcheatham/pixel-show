@@ -1,6 +1,7 @@
 package me.zachcheatham.pixelshow.show;
 
 import me.zachcheatham.pixelshow.Constants;
+import me.zachcheatham.pixelshow.Translations;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -10,7 +11,7 @@ public class Show
     public final List<Layer> layers = new LinkedList<>();
     private final ShowListener showListener;
 
-    private String title = Constants.TRANSLATION_UNTITLED_SHOW;
+    private String title = Translations.getString(Constants.TRANSLATION_FILE_UNTITLED);
     private String audioLocation = null;
     private String fileLocation = null;
     private boolean unsaved = false;

@@ -1,39 +1,41 @@
 package me.zachcheatham.pixelshow.ui.mainwindow;
 
-import me.zachcheatham.pixelshow.Constants;
+import me.zachcheatham.pixelshow.Translations;
 
 import javax.swing.*;
+
+import static me.zachcheatham.pixelshow.Constants.*;
 
 public class MainWindowMenuBar extends JMenuBar
 {
     protected MainWindowMenuBar(MainWindow mainWindow)
     {
-        JMenu file = new JMenu(Constants.TRANSLATION_FILE);
+        JMenu file = new JMenu(Translations.getString(TRANSLATION_MENU_FILE));
         add(file);
-        addMenuItem(mainWindow, file, Constants.TRANSLATION_NEW_SHOW);
-        addMenuItem(mainWindow, file, Constants.TRANSLATION_OPEN_SHOW);
-        addMenuItem(mainWindow, file, Constants.TRANSLATION_SAVE_SHOW);
-        addMenuItem(mainWindow, file, Constants.TRANSLATION_RENDER_SHOW);
-        addMenuItem(mainWindow, file, Constants.TRANSLATION_CLOSE_APP);
+        addMenuItem(mainWindow, file, TRANSLATION_MENU_FILE_NEW);
+        addMenuItem(mainWindow, file, TRANSLATION_ACTION_OPEN_SHOW);
+        addMenuItem(mainWindow, file, TRANSLATION_ACTION_SAVE_SHOW);
+        addMenuItem(mainWindow, file, TRANSLATION_MENU_FILE_RENDER_SHOW);
+        addMenuItem(mainWindow, file, TRANSLATION_MENU_FILE_EXIT);
 
-        JMenu music = new JMenu(Constants.TRANSLATION_MUSIC);
+        JMenu music = new JMenu(Translations.getString(TRANSLATION_MENU_MUSIC));
         add(music);
 
-        addMenuItem(mainWindow, music, Constants.TRANSLATION_SET_WAV);
-        addMenuItem(mainWindow, music, Constants.TRANSLATION_PLAY);
-        addMenuItem(mainWindow, music, Constants.TRANSLATION_PAUSE);
+        addMenuItem(mainWindow, music, TRANSLATION_MENU_MUSIC_OPEN);
+        addMenuItem(mainWindow, music, TRANSLATION_ACTION_PLAY);
+        addMenuItem(mainWindow, music, TRANSLATION_ACTION_PAUSE);
 
-        JMenu layers = new JMenu(Constants.TRANSLATION_LAYERS);
+        JMenu layers = new JMenu(Translations.getString(TRANSLATION_MENU_LAYERS));
         add(layers);
 
-        addMenuItem(mainWindow, layers, Constants.TRANSLATION_ADD_LAYER);
+        addMenuItem(mainWindow, layers, TRANSLATION_ACTION_ADD_LAYER);
     }
 
-    private void addMenuItem(MainWindow window, JMenu parent, String title)
+    private void addMenuItem(MainWindow window, JMenu parent, String translation)
     {
-        JMenuItem item = new JMenuItem(title);
+        JMenuItem item = new JMenuItem(Translations.getString(translation));
         item.addActionListener(window);
-        item.setActionCommand(title);
+        item.setActionCommand(translation);
         parent.add(item);
     }
 

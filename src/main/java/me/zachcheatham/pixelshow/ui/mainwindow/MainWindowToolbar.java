@@ -1,29 +1,31 @@
 package me.zachcheatham.pixelshow.ui.mainwindow;
 
-import me.zachcheatham.pixelshow.Constants;
+import me.zachcheatham.pixelshow.Translations;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
+import static me.zachcheatham.pixelshow.Constants.*;
+
 public class MainWindowToolbar extends JToolBar
 {
     public MainWindowToolbar(MainWindow w)
     {
-        addButton(w, Constants.TRANSLATION_PLAY);
+        addButton(w, TRANSLATION_ACTION_PLAY);
         addSeparator();
-        addButton(w, Constants.TRANSLATION_ADD_LAYER);
+        addButton(w, TRANSLATION_ACTION_ADD_LAYER);
         addSeparator();
-        addButton(w, Constants.TRANSLATION_ZOOM_IN);
-        addButton(w, Constants.TRANSLATION_ZOOM_OUT);
-        addButton(w, Constants.TRANSLATION_ZOOM_TO_WINDOW);
+        addButton(w, TRANSLATION_ACTION_ZOOM_IN);
+        addButton(w, TRANSLATION_ACTION_ZOOM_OUT);
+        addButton(w, TRANSLATION_ACTION_ZOOM_FIT);
     }
 
-    private void addButton(ActionListener listener, String title)
+    private void addButton(ActionListener listener, String translation)
     {
-        JButton button = new JButton(title);
+        JButton button = new JButton(Translations.getString(translation));
         button.setMinimumSize(new Dimension(-1, 20));
-        button.setActionCommand(title);
+        button.setActionCommand(translation);
         button.addActionListener(listener);
         add(button);
     }
