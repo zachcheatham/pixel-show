@@ -1,6 +1,6 @@
 package me.zachcheatham.pixelshow.ui.mainwindow.effecttimeline;
 
-import me.zachcheatham.pixelshow.Constants;
+import me.zachcheatham.pixelshow.Translations;
 import me.zachcheatham.pixelshow.show.Layer;
 import me.zachcheatham.pixelshow.ui.PopupMouseAdapter;
 
@@ -9,6 +9,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import static me.zachcheatham.pixelshow.Constants.*;
+
 public class LayerOptions extends JPanel implements ActionListener
 {
     private final Layer layer;
@@ -16,15 +18,15 @@ public class LayerOptions extends JPanel implements ActionListener
     public LayerOptions(Layer layer)
     {
         this.layer = layer;
-        addMouseListener(new PopupMouseAdapter(LayerOptionsPopupMenu::new));
+        addMouseListener(new PopupMouseAdapter(e -> new LayerOptionsPopupMenu()));
     }
 
     private void promptRename()
     {
         String name = JOptionPane.showInputDialog(
                 null,
-                Constants.TRANSLATE_ENTER_NEW_NAME,
-                String.format(Constants.TRANSLATE_FORMAT_RENAME_LAYER, layer.getName()),
+                Translations.get(TRANSLATION_DIALOG_RENAME_LAYER),
+                Translations.getFormatted(TRANSLATION_DIALOG_RENAME_LAYER_TITLE, layer.getName()),
                 JOptionPane.PLAIN_MESSAGE);
 
         if (name != null)
@@ -53,7 +55,7 @@ public class LayerOptions extends JPanel implements ActionListener
     {
         switch (actionEvent.getActionCommand())
         {
-            case Constants.TRANSLATION_RENAME:
+            case TRANSLATION_ACTION_RENAME:
                 promptRename();
                 break;
         }
@@ -63,9 +65,9 @@ public class LayerOptions extends JPanel implements ActionListener
     {
         public LayerOptionsPopupMenu()
         {
-            JMenuItem rename = new JMenuItem(Constants.TRANSLATION_RENAME);
+            JMenuItem rename = new JMenuItem(Translations.get(TRANSLATION_ACTION_RENAME));
             rename.addActionListener(LayerOptions.this);
-            rename.setActionCommand(Constants.TRANSLATION_RENAME);
+            rename.setActionCommand(TRANSLATION_ACTION_RENAME);
             add(rename);
         }
     }

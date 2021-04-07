@@ -23,7 +23,7 @@ public class MainWindowToolbar extends JToolBar
 
     private void addButton(ActionListener listener, String translation)
     {
-        JButton button = new JButton(Translations.getString(translation));
+        JButton button = new JButton(Translations.get(translation));
         button.setMinimumSize(new Dimension(-1, 20));
         button.setActionCommand(translation);
         button.addActionListener(listener);

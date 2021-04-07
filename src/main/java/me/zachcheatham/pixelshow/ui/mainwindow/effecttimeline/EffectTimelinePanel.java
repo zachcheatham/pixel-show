@@ -3,6 +3,7 @@ package me.zachcheatham.pixelshow.ui.mainwindow.effecttimeline;
 import me.zachcheatham.pixelshow.Constants;
 import me.zachcheatham.pixelshow.show.Layer;
 import me.zachcheatham.pixelshow.show.Show;
+import me.zachcheatham.pixelshow.ui.mainwindow.TimelineBounds;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,15 +19,16 @@ public class EffectTimelinePanel extends JPanel
     private final JScrollPane optionsScroll = new JScrollPane();
     private final List<LayerPair> layerPairs = new LinkedList<>();
     private final TimelinePanelListener listener;
+    private final TimelineBounds timelineBounds;
     private int totalFrames = 0;
     private int currentFrame = 0;
-    private float zoomFramesPerPixel = 1.0f;
     private int lastScrollbarValue = 0;
 
     private Show show;
 
-    public EffectTimelinePanel(TimelinePanelListener listener)
+    public EffectTimelinePanel(TimelinePanelListener listener, TimelineBounds timelineBounds)
     {
+        this.timelineBounds = timelineBounds;
         this.listener = listener;
 
         setLayout(new BorderLayout());
@@ -48,7 +50,7 @@ public class EffectTimelinePanel extends JPanel
         {
             if (lastScrollbarValue != adjustmentEvent.getValue())
             {
-                listener.trackScrollChanged(Math.round(adjustmentEvent.getValue() * zoomFramesPerPixel));
+                listener.trackScrollChanged(Math.round(adjustmentEvent.getValue() * timelineBounds.getFramesPerPixel()));
                 lastScrollbarValue = adjustmentEvent.getValue();
             }
         });
@@ -72,10 +74,10 @@ public class EffectTimelinePanel extends JPanel
     public void setShow(Show show)
     {
         this.show = show;
-        updateViewsForShow();
+        layoutLayers();
     }
 
-    public void updateViewsForShow()
+    public void layoutLayers()
     {
         layerPairs.clear();
         timelinePanel.removeAll();
@@ -83,46 +85,41 @@ public class EffectTimelinePanel extends JPanel
 
         for (Layer layer : show.layers)
         {
-            LayerPair layerPair = new LayerPair(layer);
+            LayerPair layerPair = new LayerPair(layer, timelineBounds);
             layerPairs.add(layerPair);
             timelinePanel.add(layerPair.layerTrack);
             optionsPanel.add(layerPair.layerOptions);
         }
 
-        updateLayerBounds();
+        updateBounds();
         timelinePanel.doLayout(); // TODO WHY
         optionsPanel.doLayout();
     }
 
     public void setViewStart(int frame)
     {
-        horizontalScrollBar.setValue(Math.round(frame / zoomFramesPerPixel));
+        horizontalScrollBar.setValue(Math.round(frame / timelineBounds.getFramesPerPixel()));
     }
 
-    public void setTotalFrames(int frames)
+    public void updateBounds()
     {
-        totalFrames = frames;
-        updateLayerBounds();
-    }
+        Dimension timelinePanelSize = new Dimension(
+                timelineBounds.getWaveformWidth(),
+                Constants.TRACK_HEIGHT * layerPairs.size());
 
-    public void setZoom(float framesPerPixel)
-    {
-        zoomFramesPerPixel = framesPerPixel;
-        updateLayerBounds();
-    }
-
-    public void updateLayerBounds()
-    {
-        timelinePanel.setPreferredSize(new Dimension(
-                Math.round(totalFrames / zoomFramesPerPixel),
-                Constants.TRACK_HEIGHT * layerPairs.size()));
-
-        optionsPanel.setPreferredSize(new Dimension(
+        Dimension optionPanelSize = new Dimension(
                 optionsPanel.getWidth(),
-                Constants.TRACK_HEIGHT * layerPairs.size() + horizontalScrollBar.getPreferredSize().height
-        ));
+                Constants.TRACK_HEIGHT * layerPairs.size() + horizontalScrollBar.getPreferredSize().height);
+
+        timelinePanel.setPreferredSize(timelinePanelSize);
+
+        optionsPanel.setPreferredSize(optionPanelSize);
 
         repaint();
+
+        for (LayerPair pair : layerPairs) {
+            pair.layerTrack.trackBoundsUpdated();
+        }
     }
 
     public void setCurrentPosition(int frame)
@@ -152,7 +149,7 @@ public class EffectTimelinePanel extends JPanel
         {
             super.paint(g);
 
-            int x = (int) Math.floor(currentFrame / zoomFramesPerPixel) - horizontalScrollBar.getValue();
+            int x = (int) Math.floor(currentFrame / timelineBounds.getFramesPerPixel()) - horizontalScrollBar.getValue();
             g.setColor(Color.BLACK);
             g.drawLine(x , 0, x, getHeight() - scrollYSize);
         }

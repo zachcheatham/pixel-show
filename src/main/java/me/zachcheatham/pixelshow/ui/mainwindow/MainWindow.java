@@ -29,6 +29,7 @@ import static me.zachcheatham.pixelshow.Constants.*;
 public class MainWindow extends JFrame implements ActionListener, Show.ShowListener, WaveformPanel.WaveformEventListener, EffectTimelinePanel.TimelinePanelListener
 {
     private final Logger LOG = Logger.getLogger(getClass().getSimpleName());
+    private TimelineBounds timelineBounds;
 
     private Renderer showRenderer;
     private int lastPaintFrame = 0;
@@ -40,12 +41,13 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     private EffectTimelinePanel effectTimelinePanel;
 
     private Show show;
-    private float zoomFramesPerPixel = 0.0f;
     private int visibleFramesStart = 0;
 
     public MainWindow()
     {
-        super(Translations.getString(TRANSLATION_APP_TITLE));
+        super(Translations.get(TRANSLATION_APP_TITLE));
+
+        if (timelineBounds == null) timelineBounds = new TimelineBounds();
 
         setPreferredSize(new Dimension(1000, 600));
 
@@ -61,8 +63,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 if (show.isUnsaved())
                 {
                     int response = JOptionPane.showConfirmDialog(null,
-                            Translations.getString(TRANSLATION_DIALOG_EXIT_NO_SAVE),
-                            Translations.getString(TRANSLATION_DIALOG_EXIT_NO_SAVE_TITLE),
+                            Translations.get(TRANSLATION_DIALOG_EXIT_NO_SAVE),
+                            Translations.get(TRANSLATION_DIALOG_EXIT_NO_SAVE_TITLE),
                             JOptionPane.YES_NO_OPTION);
 
                     if (response == JOptionPane.NO_OPTION)
@@ -86,8 +88,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             LOG.fatal("Unable to open audio line.", e);
 
             JOptionPane.showMessageDialog(this,
-                    Translations.getString(TRANSLATION_DIALOG_ERROR_AUDIO_LINE),
-                    Translations.getString(TRANSLATION_DIALOG_ERROR_AUDIO_LINE_TITLE),
+                    Translations.get(TRANSLATION_DIALOG_ERROR_AUDIO_LINE),
+                    Translations.get(TRANSLATION_DIALOG_ERROR_AUDIO_LINE_TITLE),
                     JOptionPane.ERROR_MESSAGE);
 
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
@@ -107,7 +109,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 int currentFrame = showRenderer.getCurrentFrame();
                 if (currentFrame != lastPaintFrame)
                 {
-                    int visibleFramesEnd = Math.round(waveformPanel.getWidthWithOffset() * zoomFramesPerPixel) + visibleFramesStart;
+                    int visibleFramesEnd = Math.round(waveformPanel.getWidthWithOffset() * timelineBounds.framesPerPixel) + visibleFramesStart;
 
                     if (currentFrame > visibleFramesEnd)
                         effectTimelinePanel.setViewStart(currentFrame);
@@ -133,7 +135,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         LOG.info(String.format("Show opened: %s", show.getTitle()));
 
         this.show = show;
-        setTitle(String.format("%s - %s", Translations.getString(TRANSLATION_APP_TITLE), show.getTitle()));
+        setTitle(String.format("%s - %s", Translations.get(TRANSLATION_APP_TITLE), show.getTitle()));
 
         effectTimelinePanel.setShow(show);
 
@@ -148,8 +150,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 LOG.error("Unable to open audio file.", e);
 
                 JOptionPane.showMessageDialog(this,
-                        Translations.getStringFormatted(TRANSLATION_DIALOG_ERROR_AUDIO_FILE, show.getAudioLocation()),
-                        Translations.getString(TRANSLATION_DIALOG_ERROR_AUDIO_FILE_TITLE),
+                        Translations.getFormatted(TRANSLATION_DIALOG_ERROR_AUDIO_FILE, show.getAudioLocation()),
+                        Translations.get(TRANSLATION_DIALOG_ERROR_AUDIO_FILE_TITLE),
                         JOptionPane.WARNING_MESSAGE);
 
                 show.setAudioLocation(null);
@@ -160,8 +162,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 LOG.error(String.format("Unsupported audio file %s", show.getAudioLocation()), e);
 
                 JOptionPane.showMessageDialog(this,
-                        Translations.getStringFormatted(TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE, FilenameUtils.getBaseName(show.getAudioLocation())),
-                        Translations.getString(TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE_TITLE),
+                        Translations.getFormatted(TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE, FilenameUtils.getBaseName(show.getAudioLocation())),
+                        Translations.get(TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE_TITLE),
                         JOptionPane.WARNING_MESSAGE);
 
                 show.setAudioLocation(null);
@@ -182,16 +184,16 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
 
     private void zoomToWindow()
     {
-        zoomFramesPerPixel = showRenderer.getTotalFrames() / (float) waveformPanel.getWidthWithOffset();
+        timelineBounds.setFramesPerPixel(timelineBounds.getTotalFrames() / (float) waveformPanel.getWidthWithOffset());
         visibleFramesStart = 0;
         updateWaveformViewBounds();
-        effectTimelinePanel.setZoom(zoomFramesPerPixel);
+        effectTimelinePanel.updateBounds();
     }
 
     private void updateWaveformViewBounds()
     {
         float startMS = (visibleFramesStart / (float) TARGET_FPS) * 1000.0f;
-        float msPerPixel = (zoomFramesPerPixel / (float) TARGET_FPS) * 1000.0f;
+        float msPerPixel = (timelineBounds.getFramesPerPixel() / (float) TARGET_FPS) * 1000.0f;
         waveformPanel.setViewBounds((int) startMS, msPerPixel);
     }
 
@@ -200,9 +202,9 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         if (show.getFileLocation() == null)
         {
             JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle(Translations.getStringFormatted(TRANSLATION_DIALOG_SAVE_SHOW_TITLE, show.getTitle()));
+            fileChooser.setDialogTitle(Translations.getFormatted(TRANSLATION_DIALOG_SAVE_SHOW_TITLE, show.getTitle()));
             fileChooser.setFileFilter(new FileNameExtensionFilter(
-                    Translations.getString(TRANSLATION_FILE_TYPE_SHW), Constants.SAVE_EXTENSION));
+                    Translations.get(TRANSLATION_FILE_TYPE_SHW), Constants.SAVE_EXTENSION));
             fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
             fileChooser.setAcceptAllFileFilterUsed(false);
             if (fileChooser.showSaveDialog(source) == JFileChooser.APPROVE_OPTION)
@@ -228,8 +230,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             LOG.error("Unable to save show.", e);
 
             JOptionPane.showMessageDialog(this,
-                    Translations.getStringFormatted(TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND, show.getFileLocation()),
-                    Translations.getString(TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND_TITLE),
+                    Translations.getFormatted(TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND, show.getFileLocation()),
+                    Translations.get(TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND_TITLE),
                     JOptionPane.WARNING_MESSAGE);
         }
     }
@@ -237,10 +239,10 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     private void openShow(Component source)
     {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle(Translations.getString(TRANSLATION_ACTION_OPEN_SHOW));
+        fileChooser.setDialogTitle(Translations.get(TRANSLATION_ACTION_OPEN_SHOW));
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setFileFilter(
-                new FileNameExtensionFilter(Translations.getString(TRANSLATION_FILE_TYPE_SHW),
+                new FileNameExtensionFilter(Translations.get(TRANSLATION_FILE_TYPE_SHW),
                 Constants.SAVE_EXTENSION));
         if (fileChooser.showOpenDialog(source) == JFileChooser.APPROVE_OPTION)
         {
@@ -254,8 +256,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 LOG.error("File not found while opening show", e);
 
                 JOptionPane.showMessageDialog(this,
-                        Translations.getStringFormatted(TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND, fileChooser.getSelectedFile().getAbsolutePath()),
-                        Translations.getString(TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND_TITLE),
+                        Translations.getFormatted(TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND, fileChooser.getSelectedFile().getAbsolutePath()),
+                        Translations.get(TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND_TITLE),
                         JOptionPane.WARNING_MESSAGE);
             }
         }
@@ -264,10 +266,10 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     private void openMP3Chooser(Component source)
     {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle(Translations.getString(TRANSLATION_ACTION_OPEN_SHOW));
+        fileChooser.setDialogTitle(Translations.get(TRANSLATION_ACTION_OPEN_SHOW));
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setFileFilter(new FileNameExtensionFilter(
-                Translations.getString(TRANSLATION_FILE_TYPE_WAV), "wav"));
+                Translations.get(TRANSLATION_FILE_TYPE_WAV), "wav"));
         if (fileChooser.showOpenDialog(source) == JFileChooser.APPROVE_OPTION)
         {
             File selectedFile = fileChooser.getSelectedFile();
@@ -283,8 +285,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 LOG.error(String.format("Unsupported file %s", filePath), e);
 
                 JOptionPane.showMessageDialog(this,
-                        Translations.getStringFormatted(TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE, FilenameUtils.getBaseName(filePath)),
-                        Translations.getString(TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE_TITLE),
+                        Translations.getFormatted(TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE, FilenameUtils.getBaseName(filePath)),
+                        Translations.get(TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE_TITLE),
                         JOptionPane.WARNING_MESSAGE);
 
                 openMP3Chooser(source);
@@ -294,8 +296,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 LOG.error(String.format("Unable to open audio file %s", filePath), e);
 
                 JOptionPane.showMessageDialog(this,
-                        Translations.getStringFormatted(TRANSLATION_DIALOG_ERROR_AUDIO_FILE, filePath),
-                        Translations.getString(TRANSLATION_DIALOG_ERROR_AUDIO_FILE_TITLE),
+                        Translations.getFormatted(TRANSLATION_DIALOG_ERROR_AUDIO_FILE, filePath),
+                        Translations.get(TRANSLATION_DIALOG_ERROR_AUDIO_FILE_TITLE),
                         JOptionPane.WARNING_MESSAGE);
 
                 show.setAudioLocation(null);
@@ -310,7 +312,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
 
         waveformPanel.setAudio(audioFile);
         showRenderer.setAudio(audioFile);
-        effectTimelinePanel.setTotalFrames(showRenderer.getTotalFrames());
+        effectTimelinePanel.updateBounds();
     }
 
     @Override
@@ -340,43 +342,45 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 zoomToWindow();
                 break;
             case TRANSLATION_ACTION_ZOOM_IN:
-                if (zoomFramesPerPixel > 1)
+                if (timelineBounds.getFramesPerPixel() > 1)
                 {
-                    zoomFramesPerPixel = (float) Math.floor(zoomFramesPerPixel - 1);
+                    timelineBounds.setFramesPerPixel((float) Math.floor(timelineBounds.getFramesPerPixel() - 1));
                 }
-                else if (zoomFramesPerPixel > 0.1f)
+                else if (timelineBounds.getFramesPerPixel() > 0.1f)
                 {
-                    zoomFramesPerPixel = ((float) Math.floor(zoomFramesPerPixel * 10 - 1)) / 10.0f;
+                    timelineBounds.setFramesPerPixel(((float) Math.floor(timelineBounds.getFramesPerPixel() * 10 - 1)) / 10.0f);
                 }
-                else if (zoomFramesPerPixel > 0.01)
+                else if (timelineBounds.getFramesPerPixel() > 0.01)
                 {
-                    zoomFramesPerPixel = ((float) Math.floor(zoomFramesPerPixel * 100 - 1)) / 100.0f;
+                    timelineBounds.setFramesPerPixel(((float) Math.floor(timelineBounds.getFramesPerPixel() * 100 - 1)) / 100.0f);
                 }
                 else
                 {
                     break;
                 }
+
                 updateWaveformViewBounds();
-                effectTimelinePanel.setZoom(zoomFramesPerPixel);
+                effectTimelinePanel.updateBounds();
+
                 break;
             case TRANSLATION_ACTION_ZOOM_OUT:
-                if (zoomFramesPerPixel < 0.1f)
+                if (timelineBounds.getFramesPerPixel() < 0.1f)
                 {
-                    zoomFramesPerPixel = ((float) Math.floor(zoomFramesPerPixel * 100 + 1)) / 100.0f;
+                    timelineBounds.setFramesPerPixel(((float) Math.floor(timelineBounds.getFramesPerPixel() * 100 + 1)) / 100.0f);
                 }
-                else if (zoomFramesPerPixel < 1)
+                else if (timelineBounds.getFramesPerPixel() < 1)
                 {
-                    zoomFramesPerPixel = ((float) Math.floor(zoomFramesPerPixel * 10 + 1)) / 10.0f;
+                    timelineBounds.setFramesPerPixel(((float) Math.floor(timelineBounds.getFramesPerPixel() * 10 + 1)) / 10.0f);
                 }
                 else
                 {
-                    zoomFramesPerPixel = (float) Math.floor(zoomFramesPerPixel + 1);
+                    timelineBounds.setFramesPerPixel((float) Math.floor(timelineBounds.getFramesPerPixel() + 1));
                 }
                 updateWaveformViewBounds();
-                effectTimelinePanel.setZoom(zoomFramesPerPixel);
+                effectTimelinePanel.updateBounds();
                 break;
             case TRANSLATION_ACTION_ADD_LAYER:
-                show.createLayer(Translations.getString(TRANSLATION_LAYER_NEW));
+                show.createLayer(Translations.get(TRANSLATION_LAYER_NEW));
                 break;
         }
     }
@@ -390,7 +394,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     @Override
     public void onLayerAdded(int position)
     {
-        effectTimelinePanel.updateViewsForShow();
+        effectTimelinePanel.layoutLayers();
     }
 
     @Override
@@ -403,15 +407,24 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     public void onWaveformRendered(int millisecondDuration)
     {
         show.setFrameLength(showRenderer.getTotalFrames(), false);
+        timelineBounds.setTotalFrames(showRenderer.getTotalFrames());
         zoomToWindow();
     }
 
     private void createUIComponents()
     {
+        if (timelineBounds == null) timelineBounds = new TimelineBounds();
+
+        System.out.println(timelineBounds.hashCode());
+
         PreviewPanel = new PreviewPanel(this);
         waveformPanel = new WaveformPanel(this);
         toolbar = new MainWindowToolbar(this);
-        effectTimelinePanel = new EffectTimelinePanel(this);
+
+        System.out.println("createUIComponents.");
+        System.out.println(this.getClass());
+
+        effectTimelinePanel = new EffectTimelinePanel(this, timelineBounds);
     }
 
     @Override

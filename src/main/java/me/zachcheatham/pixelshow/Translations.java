@@ -13,7 +13,7 @@ public class Translations
 
     private static final Logger LOG = Logger.getLogger(Translations.class.getSimpleName());
 
-    public static String getString(String key)
+    public static String get(String key)
     {
         try
         {
@@ -26,7 +26,7 @@ public class Translations
         }
     }
 
-    public static String getStringFormatted(String key, Object... args)
+    public static String getFormatted(String key, Object... args)
     {
         try
         {

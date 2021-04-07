@@ -67,7 +67,7 @@ public class ShowIO
             for (int i = 0; i < layersArray.length(); i++)
             {
                 JSONObject layerObject = layersArray.getJSONObject(i);
-                Layer layer = new Layer();
+                Layer layer = new Layer(show);
 
                 if (layerObject.has("name"))
                     layer.setName(layerObject.getString("name"));

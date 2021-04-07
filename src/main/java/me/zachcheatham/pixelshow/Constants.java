@@ -20,7 +20,7 @@ public class Constants
     public static final String TRANSLATION_MENU_FILE_RENDER_SHOW = "menu.file.render_show";
     public static final String TRANSLATION_MENU_FILE_NEW = "menu.file.new";
     public static final String TRANSLATION_FILE_UNTITLED = "file.untitled";
-    public static final String TRANSLATION_DIALOG_EXIT_NO_SAVE = "dialog.exit_no_save";
+    public static final String TRANSLATION_DIALOG_EXIT_NO_SAVE = "dialog.exit_no_save.content";
     public static final String TRANSLATION_DIALOG_EXIT_NO_SAVE_TITLE = "dialog.exit_no_save.title";
     public static final String TRANSLATION_MENU_MUSIC = "menu.music.music";
     public static final String TRANSLATION_MENU_MUSIC_OPEN = "menu.music.open";
@@ -34,21 +34,21 @@ public class Constants
     public static final String TRANSLATION_ACTION_ZOOM_FIT = "action.zoom_fit";
     public static final String TRANSLATION_ACTION_ADD_LAYER = "action.add_layer";
     public static final String TRANSLATION_ACTION_RENAME = "action.rename";
-    public static final String TRANSLATION_DIALOG_RENAME_LAYER = "dialog.rename_layer";
+    public static final String TRANSLATION_DIALOG_RENAME_LAYER = "dialog.rename_layer.content";
     public static final String TRANSLATION_DIALOG_RENAME_LAYER_TITLE = "dialog.rename_layer.title";
     public static final String TRANSLATION_DIALOG_SAVE_SHOW_TITLE = "dialog.save_show.title";
     public static final String TRANSLATION_DIALOG_ERROR_AUDIO_LINE_TITLE = "dialog.error.audio_line.title";
-    public static final String TRANSLATION_DIALOG_ERROR_AUDIO_LINE = "dialog.error.audio_line";
+    public static final String TRANSLATION_DIALOG_ERROR_AUDIO_LINE = "dialog.error.audio_line.content";
     public static final String TRANSLATION_DIALOG_ERROR_AUDIO_FILE_TITLE = "dialog.error.audio_file.title";
-    public static final String TRANSLATION_DIALOG_ERROR_AUDIO_FILE = "dialog.error.audio_file";
+    public static final String TRANSLATION_DIALOG_ERROR_AUDIO_FILE = "dialog.error.audio_file.content";
     public static final String TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE_TITLE = "dialog.error.unsupported_audio_file.title";
-    public static final String TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE = "dialog.error.unsupported_audio_file";
+    public static final String TRANSLATION_DIALOG_ERROR_UNSUPPORTED_AUDIO_FILE = "dialog.error.unsupported_audio_file.content";
     public static final String TRANSLATION_DIALOG_ERROR_FILE_SAVE_TITLE = "dialog.error.file_save.title";
-    public static final String TRANSLATION_DIALOG_ERROR_FILE_SAVE = "dialog.error.file_save";
+    public static final String TRANSLATION_DIALOG_ERROR_FILE_SAVE = "dialog.error.file_save.content";
     public static final String TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND_TITLE = "dialog.error.file_not_found.title";
-    public static final String TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND = "dialog.error.file_not_found";
+    public static final String TRANSLATION_DIALOG_ERROR_FILE_NOT_FOUND = "dialog.error.file_not_found.content";
     public static final String TRANSLATION_ACTION_ADD_EFFECT = "action.add_effect";
-    public static final String TRANSLATION_PROPERTY_COLOR = "property.color";
+    public static final String TRANSLATION_PROPERTY_COLOR = "effect.property.color";
     public static final String TRANSLATION_LAYER_NEW = "layer.new";
-
+    public static final String TRANSLATION_EFFECT_SOLID = "effect.name.solid";
 }

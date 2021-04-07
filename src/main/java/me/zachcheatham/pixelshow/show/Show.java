@@ -11,11 +11,12 @@ public class Show
     public final List<Layer> layers = new LinkedList<>();
     private final ShowListener showListener;
 
-    private String title = Translations.getString(Constants.TRANSLATION_FILE_UNTITLED);
+    private String title = Translations.get(Constants.TRANSLATION_FILE_UNTITLED);
     private String audioLocation = null;
     private String fileLocation = null;
     private boolean unsaved = false;
     private boolean reading = false;
+    private int frameLength = 0;
     private int lightStripSize = 30;
 
     public Show(ShowListener listener)
@@ -58,6 +59,33 @@ public class Show
         setUnsaved(true);
     }
 
+    /**
+     * Used to update the show's internal management of the length of a song based after an audio renderer opens the
+     * target audio file.
+     * @param frames Frames in audio file
+     */
+    public void setFrameLength(int frames, boolean ignoreShorter)
+    {
+        // Frames of audio file have not yet been determined.
+        if (frames == 0)
+        {
+            for (Layer layer : layers)
+            {
+                if (frames < layer.getFrameLength())
+                {
+
+                }
+            }
+        }
+
+        this.frameLength = frames;
+    }
+
+    public int getFrameLength()
+    {
+        return frameLength;
+    }
+
     public String getFileLocation()
     {
         return fileLocation;
@@ -91,7 +119,7 @@ public class Show
 
     public void createLayer(String layerName)
     {
-        Layer layer = new Layer();
+        Layer layer = new Layer(this);
         layer.setName(layerName);
         addLayer(layer);
     }
