@@ -20,8 +20,6 @@ public class EffectTimelinePanel extends JPanel
     private final List<LayerPair> layerPairs = new LinkedList<>();
     private final TimelinePanelListener listener;
     private final TimelineBounds timelineBounds;
-    private int totalFrames = 0;
-    private int currentFrame = 0;
     private int lastScrollbarValue = 0;
 
     private Show show;
@@ -122,11 +120,6 @@ public class EffectTimelinePanel extends JPanel
         }
     }
 
-    public void setCurrentPosition(int frame)
-    {
-        currentFrame = frame;
-    }
-
     public void repaintPosition()
     {
         timelineScroll.repaintIndicator();
@@ -149,17 +142,17 @@ public class EffectTimelinePanel extends JPanel
         {
             super.paint(g);
 
-            int x = (int) Math.floor(currentFrame / timelineBounds.getFramesPerPixel()) - horizontalScrollBar.getValue();
+            int x = (int) Math.floor(timelineBounds.currentFrame / timelineBounds.getFramesPerPixel()) - horizontalScrollBar.getValue();
             g.setColor(Color.BLACK);
             g.drawLine(x , 0, x, getHeight() - scrollYSize);
         }
 
         public void repaintIndicator()
         {
-            if (currentFrame != lastPosition)
+            if (timelineBounds.currentFrame != lastPosition)
             {
                 repaint(0, 0, getWidth() - scrollXSize + 1, getHeight() - scrollYSize + 1);
-                lastPosition = currentFrame;
+                lastPosition = timelineBounds.currentFrame;
             }
         }
     }

@@ -25,8 +25,6 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
     private final Map<Effect, TrackEffect> trackEffects = new HashMap<>();
     private final TimelineBounds timelineBounds;
 
-    private int rightClickFrame = 0;
-
     public LayerTrack(Layer layer, TimelineBounds timelineBounds)
     {
         this.timelineBounds = timelineBounds;
@@ -50,7 +48,7 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
     {
         super.paint(g);
 
-        g.setColor(Color.DARK_GRAY);
+        g.setColor(UIManager.getColor("textText"));
         g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
     }
 
@@ -60,7 +58,7 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
         switch (actionEvent.getActionCommand())
         {
             case TRANSLATION_ACTION_ADD_EFFECT:
-                AddEffectWindow addEffectWindow = new AddEffectWindow(rightClickFrame, this);
+                AddEffectWindow addEffectWindow = new AddEffectWindow(timelineBounds.currentFrame,  this);
                 addEffectWindow.setVisible(true);
                 break;
         }
@@ -71,7 +69,7 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
     {
         try
         {
-            effect.setStartFrame(rightClickFrame);
+            effect.setStartFrame(timelineBounds.currentFrame);
 
             layer.addEffect(effect);
             //layer.getEffectsBetweenFrames(effect.getStartPosition(), effect.getStopPosition());
@@ -110,7 +108,7 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
     {
         public LayerTrackPopupMenu(float trackX)
         {
-            rightClickFrame = (int) Math.floor(layer.getShow().getFrameLength() * trackX / timelineBounds.getWaveformWidth());
+            int rightClickFrame = (int) Math.floor(layer.getShow().getFrameLength() * trackX / timelineBounds.getWaveformWidth());
 
             JMenuItem addEffect = new JMenuItem(Translations.get(TRANSLATION_ACTION_ADD_EFFECT));
             addEffect.addActionListener(LayerTrack.this);

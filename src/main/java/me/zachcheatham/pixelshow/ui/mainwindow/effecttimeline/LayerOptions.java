@@ -43,10 +43,13 @@ public class LayerOptions extends JPanel implements ActionListener
 
         Graphics2D g2 = (Graphics2D) g;
 
-        g2.setColor(Color.DARK_GRAY);
+        g2.setColor(UIManager.getColor("textText"));
         g2.fillRect(0, 0, 20, getHeight());
         g2.drawLine(20, getHeight() - 1, getWidth(), getHeight() - 1);
 
+        g2.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2.drawString(String.valueOf(layer.getName()), 25, 15);
     }
 

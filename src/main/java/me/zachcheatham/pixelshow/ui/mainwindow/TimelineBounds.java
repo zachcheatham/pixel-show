@@ -5,6 +5,7 @@ public class TimelineBounds
     private int totalFrames = 0;
     private int waveformWidth = 0;
     protected float framesPerPixel = 1f;
+    public int currentFrame = 0;
 
     protected void setTotalFrames(int frames)
     {

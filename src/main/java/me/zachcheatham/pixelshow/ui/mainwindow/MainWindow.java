@@ -115,7 +115,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                         effectTimelinePanel.setViewStart(currentFrame);
 
                     waveformPanel.setCurrentPosition(Math.round(currentFrame / (float) TARGET_FPS * 1000));
-                    effectTimelinePanel.setCurrentPosition(currentFrame);
+                    timelineBounds.currentFrame = currentFrame;
 
                     waveformPanel.repaint();
                     effectTimelinePanel.repaintPosition();

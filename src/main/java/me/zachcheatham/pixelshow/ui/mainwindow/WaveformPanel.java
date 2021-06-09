@@ -38,7 +38,7 @@ public class WaveformPanel extends JPanel implements MouseListener
     public WaveformPanel(WaveformEventListener listener)
     {
         eventListener = listener;
-        setBackground(Color.LIGHT_GRAY);
+        setBackground(UIManager.getColor("Panel.background"));
     }
 
     public void setAudio(File file) throws IOException, UnsupportedAudioFileException
