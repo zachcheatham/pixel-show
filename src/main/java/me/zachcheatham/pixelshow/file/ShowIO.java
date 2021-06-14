@@ -2,10 +2,13 @@ package me.zachcheatham.pixelshow.file;
 
 import me.zachcheatham.pixelshow.show.Layer;
 import me.zachcheatham.pixelshow.show.Show;
+import me.zachcheatham.pixelshow.show.effect.Effect;
+import me.zachcheatham.pixelshow.show.effect.EffectProperty;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.awt.*;
 import java.io.*;
 
 public class ShowIO
@@ -23,7 +26,39 @@ public class ShowIO
             JSONObject layerObject = new JSONObject();
             layerObject.put("name", layer.getName());
 
-            // TODO add effects
+            JSONArray layerEffects = new JSONArray();
+            for (Effect effect : layer.getEffects())
+            {
+                JSONObject effectObject = new JSONObject();
+                effectObject.put("type", effect.getTypeId());
+                effectObject.put("start", effect.getStartFrame());
+                effectObject.put("duration", effect.getDuration());
+
+                JSONArray properties = new JSONArray();
+
+                for (EffectProperty<?> effectProperty : effect.getProperties())
+                {
+                    JSONObject effectPropertyObject = new JSONObject();
+                    effectPropertyObject.put("type", effectProperty.getType().getSimpleName());
+                    switch (effectProperty.getType().getSimpleName()) {
+                        case "Color":
+                            Color typedEffect = (Color) effectProperty.getValue();
+                            effectPropertyObject.put("r", typedEffect.getRed());
+                            effectPropertyObject.put("g", typedEffect.getGreen());
+                            effectPropertyObject.put("b", typedEffect.getBlue());
+                            break;
+                        default:
+                            throw new InvalidClassException("Unable to serialize type: " + effectProperty.getType().getName());
+
+                    }
+                    properties.put(effectPropertyObject);
+                }
+
+                effectObject.put("props", properties);
+
+                layerEffects.put(effectObject);
+            }
+            layerObject.put("effects", layerEffects);
 
             layersArray.put(layerObject);
         }
@@ -72,7 +107,19 @@ public class ShowIO
                 if (layerObject.has("name"))
                     layer.setName(layerObject.getString("name"));
 
-                // TODO add effects
+                if (layerObject.has("effects"))
+                {
+                    JSONArray effectsArray = fileObject.getJSONArray("effects");
+                    for (int c = 0; i < effectsArray.length(); i++)
+                    {
+                        JSONObject effectObject = effectsArray.getJSONObject(c);
+                        Effect e = Effect.createFromType(
+                                effectObject.getString("type"),
+                                effectObject.getInt("start"));
+
+
+                    }
+                }
 
                 show.addLayer(layer);
             }

@@ -7,7 +7,7 @@ import java.awt.*;
 
 public abstract class Effect
 {
-     private int startFrame = 0;
+     private int startFrame;
      private int duration = 2 * Constants.TARGET_FPS; // Default to Two seconds
      private PositionUpdateListener positionUpdateListener = null;
 
@@ -15,6 +15,13 @@ public abstract class Effect
      {
           this.startFrame = startFrame;
      }
+
+     public Effect(JSONObject jsonObject)
+     {
+          startFrame = jsonObject.getInt("startFrame");
+     }
+
+     public abstract String getTypeId();
 
      public void setStartFrame(int startPosition)
      {
@@ -54,7 +61,6 @@ public abstract class Effect
      }
 
      public abstract boolean hasFlexibleDuration();
-     public abstract JSONObject save();
 
      public void setPositionUpdateListener(PositionUpdateListener listener)
      {
@@ -66,13 +72,23 @@ public abstract class Effect
           return Color.WHITE;
      }
 
+     public abstract EffectProperty<?>[] getProperties();
+
      public interface PositionUpdateListener
      {
           void onEffectPositionChanged(Effect effect, int oldStartPosition);
      }
 
-     public EffectProperty<?>[] getProperties()
-     {
-          return null;
+     public static Effect fromJson(JSONObject jsonObject) {
+
+          int startFrame = jsonObject.getInt("start");
+          String type = jsonObject.getString("type");
+
+          switch (type) {
+               case "solid":
+                    return new SolidColorEffect(jsonObject);
+               default:Coming
+                    throw new IllegalArgumentException("Invalid effect type: " + type);
+          }
      }
 }

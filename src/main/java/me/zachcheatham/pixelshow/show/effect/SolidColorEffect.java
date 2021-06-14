@@ -1,7 +1,6 @@
 package me.zachcheatham.pixelshow.show.effect;
 
 import me.zachcheatham.pixelshow.Constants;
-import org.json.JSONObject;
 
 import java.awt.*;
 import java.util.Map;
@@ -12,6 +11,7 @@ import static me.zachcheatham.pixelshow.Constants.TRANSLATION_EFFECT_SOLID;
 public class SolidColorEffect extends Effect
 {
     public static final String NAME = TRANSLATION_EFFECT_SOLID;
+    public static final String TYPE_ID = "solid";
 
     private final EffectProperty<Color> color = new EffectProperty<>(Constants.TRANSLATION_PROPERTY_COLOR, new Color(255, 255, 255));
 
@@ -25,6 +25,11 @@ public class SolidColorEffect extends Effect
     }
 
     @Override
+    public String getTypeId() {
+        return TYPE_ID;
+    }
+
+    @Override
     public boolean hasFlexibleDuration()
     {
         return true;
@@ -34,12 +39,6 @@ public class SolidColorEffect extends Effect
     public Color getGUIColor()
     {
         return color.getValue();
-    }
-
-    @Override
-    public JSONObject save()
-    {
-        return null; // TODO
     }
 
     @Override

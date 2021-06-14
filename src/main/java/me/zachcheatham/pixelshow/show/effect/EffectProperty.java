@@ -5,9 +5,9 @@ public class EffectProperty<T>
     T value = null;
     private final String name;
 
-    public EffectProperty(String nameTraslation, T value)
+    public EffectProperty(String nameTranslation, T value)
     {
-        this.name = nameTraslation;
+        this.name = nameTranslation;
         this.value = value;
     }
 
