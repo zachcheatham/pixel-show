@@ -67,10 +67,26 @@ public abstract class Effect
           this.positionUpdateListener = listener;
      }
 
-     public Color getGUIColor()
+     public Color getTimelineColor()
      {
           return Color.WHITE;
      }
+
+     public JSONObject toJSON()
+     {
+          JSONObject effectObject = new JSONObject();
+
+          effectObject.put("type", getTypeId());
+          effectObject.put("startFrame", getStartFrame());
+          if (hasFlexibleDuration())
+               effectObject.put("duration", getDuration());
+
+          toJSON(effectObject);
+
+          return effectObject;
+     }
+
+     protected abstract void toJSON(JSONObject jsonObject);
 
      public abstract EffectProperty<?>[] getProperties();
 
@@ -79,15 +95,14 @@ public abstract class Effect
           void onEffectPositionChanged(Effect effect, int oldStartPosition);
      }
 
-     public static Effect fromJson(JSONObject jsonObject) {
-
-          int startFrame = jsonObject.getInt("start");
+     public static Effect fromJson(JSONObject jsonObject)
+     {
           String type = jsonObject.getString("type");
 
           switch (type) {
                case "solid":
                     return new SolidColorEffect(jsonObject);
-               default:Coming
+               default:
                     throw new IllegalArgumentException("Invalid effect type: " + type);
           }
      }

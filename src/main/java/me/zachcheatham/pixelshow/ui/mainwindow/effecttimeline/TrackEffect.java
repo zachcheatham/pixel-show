@@ -20,7 +20,7 @@ public class TrackEffect extends JPanel
     {
         super.paint(g);
 
-        g.setColor(effect.getGUIColor());
+        g.setColor(effect.getTimelineColor());
         g.fillRect(0, 0, getWidth(), getHeight());
     }
 }

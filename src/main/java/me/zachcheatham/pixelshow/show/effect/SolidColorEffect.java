@@ -1,6 +1,7 @@
 package me.zachcheatham.pixelshow.show.effect;
 
 import me.zachcheatham.pixelshow.Constants;
+import org.json.JSONObject;
 
 import java.awt.*;
 import java.util.Map;
@@ -24,6 +25,12 @@ public class SolidColorEffect extends Effect
         super(startPosition);
     }
 
+    public SolidColorEffect(JSONObject jsonObject)
+    {
+        super(jsonObject);
+        color.setValue(new Color(jsonObject.getInt("color")));
+    }
+
     @Override
     public String getTypeId() {
         return TYPE_ID;
@@ -36,9 +43,15 @@ public class SolidColorEffect extends Effect
     }
 
     @Override
-    public Color getGUIColor()
+    public Color getTimelineColor()
     {
         return color.getValue();
+    }
+
+    @Override
+    protected void toJSON(JSONObject jsonObject)
+    {
+        jsonObject.put("color", color.getValue().getRGB());
     }
 
     @Override
