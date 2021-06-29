@@ -1,5 +1,6 @@
 package me.zachcheatham.pixelshow.ui.mainwindow;
 
+import me.zachcheatham.pixelshow.AppPreferences;
 import me.zachcheatham.pixelshow.Constants;
 import me.zachcheatham.pixelshow.Translations;
 import me.zachcheatham.pixelshow.file.ShowIO;
@@ -96,9 +97,26 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             return;
         }
 
-        Show show = new Show(this);
 
-        setShow(show);
+        String lastShowPath = AppPreferences.instance.getLastOpenedFile();
+        if (lastShowPath != null)
+        {
+            File file = new File(lastShowPath);
+            try
+            {
+                setShow(ShowIO.readShow(file, this));
+            }
+            catch (FileNotFoundException e)
+            {
+                Show show = new Show(this);
+                setShow(show);
+            }
+        }
+        else
+        {
+            Show show = new Show(this);
+            setShow(show);
+        }
 
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask()
@@ -250,6 +268,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             {
                 Show show = ShowIO.readShow(fileChooser.getSelectedFile(), this);
                 setShow(show);
+                AppPreferences.instance.setLastOpenedFile(fileChooser.getSelectedFile().getAbsolutePath());
             }
             catch (FileNotFoundException e)
             {
