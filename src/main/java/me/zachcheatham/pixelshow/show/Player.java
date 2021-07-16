@@ -5,7 +5,7 @@ import java.io.*;
 
 import static me.zachcheatham.pixelshow.Constants.TARGET_FPS;
 
-public class Renderer
+public class Player
 {
     private Clip clip = AudioSystem.getClip();
     private long pausedPosition = 0;
@@ -13,7 +13,7 @@ public class Renderer
     private int currentFrame = 0;
     private File audioFile;
 
-    public Renderer() throws LineUnavailableException
+    public Player() throws LineUnavailableException
     {
     }
 

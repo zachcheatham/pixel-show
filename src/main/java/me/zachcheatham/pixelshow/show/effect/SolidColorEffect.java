@@ -4,6 +4,7 @@ import me.zachcheatham.pixelshow.Constants;
 import org.json.JSONObject;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Map;
 
 import static java.util.Map.entry;
@@ -58,5 +59,15 @@ public class SolidColorEffect extends Effect
     public EffectProperty<?>[] getProperties()
     {
         return new EffectProperty[]{color};
+    }
+
+    @Override
+    public int[] render(double frameRate, int ledLength, int frame)
+    {
+        int[] lights = new int[ledLength];
+        int color = this.color.getValue().getRGB();
+        Arrays.fill(lights, color);
+
+        return lights;
     }
 }

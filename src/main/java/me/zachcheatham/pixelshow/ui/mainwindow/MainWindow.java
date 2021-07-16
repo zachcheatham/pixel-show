@@ -4,7 +4,7 @@ import me.zachcheatham.pixelshow.AppPreferences;
 import me.zachcheatham.pixelshow.Constants;
 import me.zachcheatham.pixelshow.Translations;
 import me.zachcheatham.pixelshow.file.ShowIO;
-import me.zachcheatham.pixelshow.show.Renderer;
+import me.zachcheatham.pixelshow.show.Player;
 import me.zachcheatham.pixelshow.show.Show;
 import me.zachcheatham.pixelshow.ui.mainwindow.effecttimeline.EffectTimelinePanel;
 import org.apache.commons.io.FilenameUtils;
@@ -32,7 +32,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     private final Logger LOG = Logger.getLogger(getClass().getSimpleName());
     private TimelineBounds timelineBounds;
 
-    private Renderer showRenderer;
+    private Player showPlayer;
     private int lastPaintFrame = 0;
 
     private JPanel rootPanel;
@@ -82,7 +82,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
 
         try
         {
-            showRenderer = new Renderer();
+            showPlayer = new Player();
         }
         catch (LineUnavailableException e)
         {
@@ -124,7 +124,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             @Override
             public void run()
             {
-                int currentFrame = showRenderer.getCurrentFrame();
+                int currentFrame = showPlayer.getCurrentFrame();
                 if (currentFrame != lastPaintFrame)
                 {
                     int visibleFramesEnd = Math.round(waveformPanel.getWidthWithOffset() * timelineBounds.framesPerPixel) + visibleFramesStart;
@@ -195,9 +195,9 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         return show;
     }
 
-    public Renderer getRenderer()
+    public Player getRenderer()
     {
-        return showRenderer;
+        return showPlayer;
     }
 
     private void zoomToWindow()
@@ -330,7 +330,7 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
         LOG.info(String.format("Opening Audio: %s", audioFile.getName()));
 
         waveformPanel.setAudio(audioFile);
-        showRenderer.setAudio(audioFile);
+        showPlayer.setAudio(audioFile);
         effectTimelinePanel.updateBounds();
     }
 
@@ -352,10 +352,10 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
                 openMP3Chooser((Component) e.getSource());
                 break;
             case TRANSLATION_ACTION_PLAY:
-                showRenderer.play();
+                showPlayer.play();
                 break;
             case TRANSLATION_ACTION_PAUSE:
-                showRenderer.pause();
+                showPlayer.pause();
                 break;
             case TRANSLATION_ACTION_ZOOM_FIT:
                 zoomToWindow();
@@ -419,14 +419,14 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
     @Override
     public void onScrub(int millisecondPosition)
     {
-        showRenderer.setPlaybackPosition(millisecondPosition * 1000L);
+        showPlayer.setPlaybackPosition(millisecondPosition * 1000L);
     }
 
     @Override
     public void onWaveformRendered(int millisecondDuration)
     {
-        show.setFrameLength(showRenderer.getTotalFrames(), false);
-        timelineBounds.setTotalFrames(showRenderer.getTotalFrames());
+        show.setFrameLength(showPlayer.getTotalFrames(), false);
+        timelineBounds.setTotalFrames(showPlayer.getTotalFrames());
         zoomToWindow();
     }
 

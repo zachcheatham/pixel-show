@@ -90,7 +90,9 @@ public abstract class Effect
 
      public abstract EffectProperty<?>[] getProperties();
 
-     public interface PositionUpdateListener
+    public abstract int[] render(double frameRate, int ledLength, int frame);
+
+    public interface PositionUpdateListener
      {
           void onEffectPositionChanged(Effect effect, int oldStartPosition);
      }
