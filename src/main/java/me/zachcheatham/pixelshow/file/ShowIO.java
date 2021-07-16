@@ -59,6 +59,8 @@ public class ShowIO
         Show show = new Show(showListener);
         show.setReading(true);
 
+        show.setFileLocation(file.getAbsolutePath());
+
         if (fileObject.has("title"))
             show.setTitle(fileObject.getString("title"));
 

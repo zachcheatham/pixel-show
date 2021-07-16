@@ -104,6 +104,7 @@ public class Show
     public void setAudioLocation(String audioLocation)
     {
         this.audioLocation = audioLocation;
+        setUnsaved(true);
     }
 
     public int getLEDLength()
