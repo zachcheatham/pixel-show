@@ -55,6 +55,24 @@ public class Layer implements Effect.PositionUpdateListener
             return null;
     }
 
+    public Effect getPreviousEffect(Effect effect)
+    {
+        Map.Entry<Integer, Effect> prevEntry = effects.lowerEntry(effect.getStartFrame());
+        if (prevEntry != null)
+            return prevEntry.getValue();
+        else
+            return null;
+    }
+
+    public Effect getNextEffect(Effect effect)
+    {
+        Map.Entry<Integer, Effect> nextEntry = effects.higherEntry(effect.getStartFrame());
+        if (nextEntry != null)
+            return nextEntry.getValue();
+        else
+            return null;
+    }
+
     /**
      * Get effects between frames or null when no effect exists in the range
      * @param startFrame First frame of range

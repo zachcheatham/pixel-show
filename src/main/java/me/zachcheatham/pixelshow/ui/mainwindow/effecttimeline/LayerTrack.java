@@ -24,6 +24,7 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
     private final Layer layer;
     private final Map<Effect, TrackEffect> trackEffects = new HashMap<>();
     private final TimelineBounds timelineBounds;
+    private final Dragger dragger = new Dragger();
 
     public LayerTrack(Layer layer, TimelineBounds timelineBounds)
     {
@@ -35,7 +36,7 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
         addMouseListener(new PopupMouseAdapter(e -> new LayerTrackPopupMenu(e.getX())));
 
         for (Effect effect : layer.getEffects()) {
-            TrackEffect trackEffect = new TrackEffect(effect);
+            TrackEffect trackEffect = new TrackEffect(effect, dragger);
             trackEffects.put(effect, trackEffect);
 
             add(trackEffect);
@@ -50,6 +51,9 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
 
         g.setColor(UIManager.getColor("textText"));
         g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
+
+        if (dragger.isDragging())
+            g.drawLine(dragger.currentX, 0, dragger.currentX, getHeight() - 1);
     }
 
     @Override
@@ -74,7 +78,7 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
             layer.addEffect(effect);
             //layer.getEffectsBetweenFrames(effect.getStartPosition(), effect.getStopPosition());
 
-            TrackEffect trackEffect = new TrackEffect(effect);
+            TrackEffect trackEffect = new TrackEffect(effect, dragger);
             trackEffects.put(effect, trackEffect);
             add(trackEffect);
             updateEffectBounds(effect, trackEffect);
@@ -96,11 +100,6 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
         int startX = Math.round((float) (e.getStartFrame() * timelineBounds.getWaveformWidth()) / (float) layer.getShow().getFrameLength());
         int width = Math.round((float) (e.getDuration() * timelineBounds.getWaveformWidth()) / (float) layer.getShow().getFrameLength());
 
-        LOG.info(e.getStartFrame());
-        LOG.info(startX);
-        LOG.info(timelineBounds.getWaveformWidth());
-        LOG.info(layer.getShow().getFrameLength());
-
         te.setBounds(startX, 0, width, getHeight() - 1);
     }
 
@@ -117,6 +116,97 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
 
             if (layer.getShow().getFrameLength() == 0 || layer.getEffectAtFrame(rightClickFrame) != null)
                 addEffect.setEnabled(false);
+        }
+    }
+
+    public class Dragger
+    {
+        private Effect currentEffect = null;
+        private int minDragFrame = -1;
+        private int maxDragFrame = -1;
+        private boolean draggingLeft = false;
+        private int currentX = 0;
+        private int currentFrame = 0;
+
+        public void startDrag(Effect e, boolean left)
+        {
+            if (!e.hasFlexibleDuration())
+                throw new IllegalArgumentException("Attempted drag on inflexible effect.");
+
+            currentEffect = e;
+            draggingLeft = left;
+
+            if (draggingLeft)
+            {
+                Effect previousEffect = layer.getPreviousEffect(e);
+                if (previousEffect != null) {
+                    minDragFrame = previousEffect.getEndFrame() + 1;
+                }
+                else {
+                    minDragFrame = 0;
+                }
+                maxDragFrame = e.getEndFrame();
+            }
+            else
+            {
+                Effect nextEffect = layer.getNextEffect(e);
+                if (nextEffect != null) {
+                    maxDragFrame = nextEffect.getStartFrame() - 1;
+                }
+                else {
+                    maxDragFrame = timelineBounds.getTotalFrames();
+                }
+                minDragFrame = e.getStartFrame();
+            }
+        }
+
+        public void endDrag()
+        {
+            if (draggingLeft) {
+                currentEffect.setDuration(currentEffect.getEndFrame() - currentFrame);
+                currentEffect.setStartFrame(currentFrame);
+            }
+            else {
+                currentEffect.setDuration(currentFrame - currentEffect.getStartFrame());
+            }
+
+            currentEffect = null;
+            trackBoundsUpdated();
+            LayerTrack.this.repaint();
+        }
+
+        public void setDragOffset(int offsetX)
+        {
+            int x;
+            TrackEffect te = trackEffects.get(currentEffect);
+
+            if (draggingLeft) x = te.getX() + offsetX;
+            else x = te.getX() + te.getWidth() + offsetX;
+            currentFrame = Math.round((float) (x * timelineBounds.getTotalFrames()) / timelineBounds.getWaveformWidth());
+
+            if (currentFrame < minDragFrame)
+                currentFrame = minDragFrame;
+            else if (currentFrame > maxDragFrame)
+                currentFrame = maxDragFrame;
+
+            currentX = Math.round(currentFrame / timelineBounds.getFramesPerPixel());
+
+            LayerTrack.this.repaint();
+        }
+
+        public boolean isDragging()
+        {
+            return currentEffect != null;
+        }
+
+        public boolean isDraggingLeft()
+        {
+            return draggingLeft;
+        }
+
+        public int getDragX()
+        {
+            return currentX;
         }
     }
 }

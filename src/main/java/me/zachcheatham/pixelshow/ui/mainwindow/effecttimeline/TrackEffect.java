@@ -4,15 +4,22 @@ import me.zachcheatham.pixelshow.show.effect.Effect;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 
 public class TrackEffect extends JPanel
 {
     private final Effect effect;
+    private final LayerTrack.Dragger dragger;
+    private final MouseHandler mouseHandler = new MouseHandler();
 
-    public TrackEffect(Effect effect) {
-        System.out.println("TRACKE CREATED");
-
+    public TrackEffect(Effect effect, LayerTrack.Dragger dragger) {
         this.effect = effect;
+        this.dragger = dragger;
+
+        addMouseListener(mouseHandler);
+        addMouseMotionListener(mouseHandler);
     }
 
     @Override
@@ -22,5 +29,65 @@ public class TrackEffect extends JPanel
 
         g.setColor(effect.getTimelineColor());
         g.fillRect(0, 0, getWidth(), getHeight());
+    }
+
+    protected class MouseHandler extends MouseAdapter implements MouseMotionListener
+    {
+        @Override
+        public void mouseDragged(MouseEvent e)
+        {
+            if (dragger.isDragging())
+            {
+                if (!dragger.isDraggingLeft()) {
+                    dragger.setDragOffset(e.getX() - getWidth());
+                }
+                else if (dragger.isDraggingLeft()) {
+                    dragger.setDragOffset(e.getX());
+                }
+                else {
+                    dragger.setDragOffset(0);
+                }
+
+                e.consume();
+            }
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e)
+        {
+            if (getWidth() > 6 && (e.getX() < 5 || e.getX() > getWidth() - 5))
+                setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
+            else
+                setCursor(Cursor.getDefaultCursor());
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e)
+        {
+            if (effect.hasFlexibleDuration() && e.getButton() == MouseEvent.BUTTON1)
+            {
+                if (getWidth() > 6)
+                {
+                    if (e.getX() > getWidth() - 5)
+                    {
+                        dragger.startDrag(effect, false);
+                    }
+                    else if (e.getX() < 5)
+                    {
+                        dragger.startDrag(effect, true);
+                    }
+                }
+
+                e.consume();
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e)
+        {
+            if (dragger.isDragging()) {
+                dragger.endDrag();
+            }
+        }
     }
 }
