@@ -80,6 +80,8 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             }
         });
 
+        rootPanel.registerKeyboardAction(this, TRANSLATION_ACTION_PLAY_PAUSE, KeyStroke.getKeyStroke(' '), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
         try
         {
             showPlayer = new Player();
@@ -96,7 +98,6 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
             return;
         }
-
 
         String lastShowPath = AppPreferences.instance.getLastOpenedFile();
         if (lastShowPath != null)
@@ -148,8 +149,6 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
 
     private void setShow(Show show)
     {
-        /*if (this.showRenderer != null)
-            this.showRenderer.cleanup()*/
         LOG.info(String.format("Show opened: %s", show.getTitle()));
 
         this.show = show;
@@ -357,6 +356,9 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
             case TRANSLATION_ACTION_PAUSE:
                 showPlayer.pause();
                 break;
+            case TRANSLATION_ACTION_PLAY_PAUSE:
+                showPlayer.playPause();
+                break;
             case TRANSLATION_ACTION_ZOOM_FIT:
                 zoomToWindow();
                 break;
@@ -412,6 +414,12 @@ public class MainWindow extends JFrame implements ActionListener, Show.ShowListe
 
     @Override
     public void onLayerAdded(int position)
+    {
+        effectTimelinePanel.layoutLayers();
+    }
+
+    @Override
+    public void onLayerRemoved(int position)
     {
         effectTimelinePanel.layoutLayers();
     }

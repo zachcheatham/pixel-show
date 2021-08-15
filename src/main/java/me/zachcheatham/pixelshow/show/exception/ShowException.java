@@ -6,6 +6,7 @@ public class ShowException extends Exception
 
     public ShowException(String message)
     {
+        super(message);
         displayMessage = message;
     }
 }

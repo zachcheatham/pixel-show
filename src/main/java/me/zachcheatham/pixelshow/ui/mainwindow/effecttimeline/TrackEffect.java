@@ -1,5 +1,6 @@
 package me.zachcheatham.pixelshow.ui.mainwindow.effecttimeline;
 
+import me.zachcheatham.pixelshow.Translations;
 import me.zachcheatham.pixelshow.show.effect.Effect;
 
 import javax.swing.*;
@@ -29,6 +30,13 @@ public class TrackEffect extends JPanel
 
         g.setColor(effect.getTimelineColor());
         g.fillRect(0, 0, getWidth(), getHeight());
+
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setColor(UIManager.getColor("textText"));
+        g2.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2.drawString(Translations.get(effect.getName()), 5, 15);
     }
 
     protected class MouseHandler extends MouseAdapter implements MouseMotionListener

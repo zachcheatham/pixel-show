@@ -36,12 +36,19 @@ public class Player
     public void setPlaybackPosition(long microsecondPosition)
     {
         clip.setMicrosecondPosition(microsecondPosition);
+        pausedPosition = microsecondPosition;
     }
 
     public void pause()
     {
         pausedPosition = clip.getMicrosecondPosition();
         clip.stop();
+    }
+
+    public void playPause()
+    {
+        if (clip.isActive()) pause();
+        else play();
     }
 
     public int getCurrentFrame()

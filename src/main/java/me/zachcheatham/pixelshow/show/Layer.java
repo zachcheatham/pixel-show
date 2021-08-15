@@ -49,7 +49,7 @@ public class Layer implements Effect.PositionUpdateListener
     public Effect getEffectAtFrame(int frame)
     {
         Map.Entry<Integer, Effect> floorEntry = effects.floorEntry(frame);
-        if (floorEntry != null && floorEntry.getValue().getStopPosition() >= frame)
+        if (floorEntry != null && floorEntry.getValue().getEndFrame() >= frame)
             return floorEntry.getValue();
         else
             return null;
@@ -86,7 +86,7 @@ public class Layer implements Effect.PositionUpdateListener
 
 
             if (effect.getValue().getStartFrame() <= stopFrame &&
-                    effect.getValue().getStopPosition() >= startFrame)
+                    effect.getValue().getEndFrame() >= startFrame)
                 foundEffects.add(effect.getValue());
         }
 
@@ -99,9 +99,9 @@ public class Layer implements Effect.PositionUpdateListener
      */
     public void addEffect(Effect effect) throws InvalidEffectPositionException
     {
-        if (show.getFrameLength() != 0 && effect.getStopPosition() > show.getFrameLength())
+        if (show.getFrameLength() != 0 && effect.getEndFrame() > show.getFrameLength())
         {
-            throw new InvalidEffectPositionException("Show cannot end after show ends.");
+            throw new InvalidEffectPositionException("Effect cannot end after show ends.");
         }
         else
         {
@@ -113,7 +113,7 @@ public class Layer implements Effect.PositionUpdateListener
             }
             else
             {
-                throw new InvalidEffectPositionException("Attempted to add an overlapping effect to layer!");
+                throw new InvalidEffectPositionException("Attempted to add an overlapping effect to layer! Last effect ended at frame " + existingEffect.getEndFrame() + ". Attempting to insert at " + effect.getStartFrame());
             }
         }
     }
@@ -127,7 +127,7 @@ public class Layer implements Effect.PositionUpdateListener
         if (effects.size() > 0)
             return -1; // No effects in layer.
         else
-            return effects.lastEntry().getValue().getStopPosition();
+            return effects.lastEntry().getValue().getEndFrame();
     }
 
     @Override

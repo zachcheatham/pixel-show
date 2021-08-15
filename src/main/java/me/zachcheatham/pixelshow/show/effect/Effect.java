@@ -19,9 +19,11 @@ public abstract class Effect
      public Effect(JSONObject jsonObject)
      {
           startFrame = jsonObject.getInt("startFrame");
+          duration = jsonObject.getInt("duration");
      }
 
      public abstract String getTypeId();
+     public abstract String getName();
 
      public void setStartFrame(int startPosition)
      {
@@ -53,11 +55,6 @@ public abstract class Effect
      public int getDuration()
      {
           return duration;
-     }
-
-     public int getStopPosition()
-     {
-          return startFrame + duration;
      }
 
      public abstract boolean hasFlexibleDuration();

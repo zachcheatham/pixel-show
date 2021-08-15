@@ -135,6 +135,14 @@ public class Show
         }
     }
 
+    public void deleteLayer(Layer layer)
+    {
+        int i = layers.indexOf(layer);
+        layers.remove(i);
+        setUnsaved(true);
+        showListener.onLayerRemoved(i);
+    }
+
     public int getLayerCount()
     {
         return layers.size();
@@ -158,5 +166,6 @@ public class Show
     {
         void onShowSavedChanged(boolean saved);
         void onLayerAdded(int position);
+        void onLayerRemoved(int position);
     }
 }

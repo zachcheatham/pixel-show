@@ -85,7 +85,7 @@ public class ShowIO
                 if (layerObject.has("effects"))
                 {
                     JSONArray effectsArray = layerObject.getJSONArray("effects");
-                    for (int c = 0; i < effectsArray.length(); i++)
+                    for (int c = 0; c < effectsArray.length(); c++)
                     {
                         JSONObject effectObject = effectsArray.getJSONObject(c);
                         Effect e = Effect.fromJson(effectObject);

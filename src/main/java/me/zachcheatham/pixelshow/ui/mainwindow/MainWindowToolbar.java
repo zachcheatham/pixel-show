@@ -27,6 +27,7 @@ public class MainWindowToolbar extends JToolBar
         button.setMinimumSize(new Dimension(-1, 20));
         button.setActionCommand(translation);
         button.addActionListener(listener);
+        button.setFocusable(false);
         add(button);
     }
 }

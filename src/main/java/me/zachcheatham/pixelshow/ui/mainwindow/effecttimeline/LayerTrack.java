@@ -101,6 +101,7 @@ public class LayerTrack extends JPanel implements ActionListener, AddEffectWindo
         int width = Math.round((float) (e.getDuration() * timelineBounds.getWaveformWidth()) / (float) layer.getShow().getFrameLength());
 
         te.setBounds(startX, 0, width, getHeight() - 1);
+        te.repaint();
     }
 
     public class LayerTrackPopupMenu extends JPopupMenu

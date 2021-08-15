@@ -36,6 +36,16 @@ public class LayerOptions extends JPanel implements ActionListener
         }
     }
 
+    private void promptDelete()
+    {
+        JOptionPane.showConfirmDialog(null,
+                Translations.getFormatted(TRANSLATION_DIALOG_DELETE_LAYER, layer.getName()),
+                Translations.get(TRANSLATION_DIALOG_DELETE_LAYER_TITLE),
+                JOptionPane.YES_NO_OPTION);
+
+        layer.getShow().deleteLayer(layer);
+    }
+
     @Override
     public void paint(Graphics g)
     {
@@ -61,6 +71,9 @@ public class LayerOptions extends JPanel implements ActionListener
             case TRANSLATION_ACTION_RENAME:
                 promptRename();
                 break;
+            case TRANSLATION_ACTION_DELETE:
+                promptDelete();
+                break;
         }
     }
 
@@ -72,6 +85,11 @@ public class LayerOptions extends JPanel implements ActionListener
             rename.addActionListener(LayerOptions.this);
             rename.setActionCommand(TRANSLATION_ACTION_RENAME);
             add(rename);
+
+            JMenuItem delete = new JMenuItem(Translations.get(TRANSLATION_ACTION_DELETE));
+            delete.addActionListener(LayerOptions.this);
+            delete.setActionCommand(TRANSLATION_ACTION_DELETE);
+            add(delete);
         }
     }
 }

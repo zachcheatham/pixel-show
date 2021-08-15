@@ -38,6 +38,12 @@ public class SolidColorEffect extends Effect
     }
 
     @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
     public boolean hasFlexibleDuration()
     {
         return true;

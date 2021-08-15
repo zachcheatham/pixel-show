@@ -89,9 +89,10 @@ public class EffectTimelinePanel extends JPanel
             optionsPanel.add(layerPair.layerOptions);
         }
 
-        updateBounds();
-        timelinePanel.doLayout(); // TODO WHY
+        timelinePanel.doLayout();
         optionsPanel.doLayout();
+
+        updateBounds();
     }
 
     public void setViewStart(int frame)
